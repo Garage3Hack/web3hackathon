@@ -1,13 +1,22 @@
-# Sample Hardhat Project
+# ハッカソン用コントラクト
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.
+### コントラクト概要説明
+- AdministerNFT: 運営権のNFTコントラクト
+- MemberNFT: ReCreation参加証コントラクト
+- BadgeNFT: 経験や実績NFTコントラクト
+- MemberRegistry: ReCreationの参加メンバー管理コントラクト
+- CoreGorvernor: 運営メンバー内での投票コントラクト、AdministerNFTをガバナンスとすることを想定
+- PjGovernor: PJDAO内での投票コントラクト、MemberNFTをガバナンスとすることを想定
+- PjDAO: PJ DAOコントラクト
+- PjDAOFactory: PJ DAOのFactoryコントラクト
 
-Try running some of the following tasks:
 
+### 立ち上げ手順
 ```shell
-npx hardhat help
-npx hardhat test
-REPORT_GAS=true npx hardhat test
-npx hardhat node
-npx hardhat run scripts/deploy.ts
+// node立ち上げ
+npm run node
+
+// 開発環境へcontractデプロイ
+npm run dev
 ```
+
