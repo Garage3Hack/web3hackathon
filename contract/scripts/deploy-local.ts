@@ -23,7 +23,7 @@ async function main() {
     console.log("BadgeNFT contract deployed to:", badgeNFT.address);
 
     const PjDAOFactory = await ethers.getContractFactory("PjDAOFactory");
-    const daoFactory = await PjDAOFactory.deploy(memberNFT.address);
+    const daoFactory = await PjDAOFactory.deploy(memberNFT.address, badgeNFT.address);
 
     console.log("PjDAOFactory contract deployed to:", daoFactory.address);
 

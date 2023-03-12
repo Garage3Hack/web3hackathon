@@ -17,7 +17,9 @@ contract BadgeNFT is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable,
 
     constructor() ERC721("BadgeNFT", "BDG") EIP712("BadgeNFT", "1") {}
 
-    function safeMint(address to, string memory uri) public onlyOwner {
+    // 暫定設定として、PJ DAO側のメンバーが条件が揃えば、Badge NFTのownerでなくてもmintできる仕様
+    // function safeMint(address to, string memory uri) public onlyOwner {
+    function safeMint(address to, string memory uri) public {
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
