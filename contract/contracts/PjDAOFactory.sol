@@ -17,18 +17,20 @@ contract PjDAOFactory {
         string description;
     }
 
-    address public nftContractAddress;
+    address public memberNftContractAddress;
+    address public badgeNftContractAddress;
     PjDAOInfo[] public allPjDAOs;
 
     event PjDAOCreated(address pjDAO, address creator);
 
-    constructor(address _nftContractAddress) {
-        nftContractAddress = _nftContractAddress;
+    constructor(address _memberNftContractAddress, address _badgeNftContractAddress) {
+        memberNftContractAddress = _memberNftContractAddress;
+        badgeNftContractAddress = _badgeNftContractAddress;
     }
 
     function createPjDAO(string memory name, string memory description) public {
         require(
-            IERC721(nftContractAddress).balanceOf(msg.sender) > 0,
+            IERC721(memberNftContractAddress).balanceOf(msg.sender) > 0,
             "Must own NFT to create PjDAO"
         );
 
@@ -41,9 +43,9 @@ contract PjDAOFactory {
             msg.sender
         );
 
-        PjGovernor newPjGovernor = new PjGovernor(IVotes(nftContractAddress), TimelockController(newTimelockController));
+        PjGovernor newPjGovernor = new PjGovernor(IVotes(memberNftContractAddress), TimelockController(newTimelockController));
 
-        PjDAO newPjDAO = new PjDAO(msg.sender, name, description);
+        PjDAO newPjDAO = new PjDAO(msg.sender, name, description, badgeNftContractAddress);
         
         allPjDAOs.push(
             PjDAOInfo({
