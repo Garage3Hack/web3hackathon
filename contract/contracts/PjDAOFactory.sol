@@ -3,10 +3,22 @@ pragma solidity ^0.8.18;
 
 import "./PjDAO.sol";
 import "./MemberNFT.sol";
+import "./TimelockController.sol";
+import "./PjGovernor.sol";
 
 contract PjDAOFactory {
+
+    struct PjDAOInfo {
+        address pjDAO;
+        address creator;
+        address timeLockController;
+        address pjGovernor;
+        string name;
+        string description;
+    }
+
     address public nftContractAddress;
-    address[] public allPjDAOs;
+    PjDAOInfo[] public allPjDAOs;
 
     event PjDAOCreated(address pjDAO, address creator);
 
@@ -15,15 +27,39 @@ contract PjDAOFactory {
     }
 
     function createPjDAO(string memory name, string memory description) public {
-        require(IERC721(nftContractAddress).balanceOf(msg.sender) > 0, "Must own NFT to create PjDAO");
+        require(
+            IERC721(nftContractAddress).balanceOf(msg.sender) > 0,
+            "Must own NFT to create PjDAO"
+        );
+
+        address[] memory owners = new address[](1);
+        owners[0] = msg.sender;
+        TimelockController newTimelockController = new TimelockController(
+            1, // sec
+            owners,
+            owners,
+            msg.sender
+        );
+
+        PjGovernor newPjGovernor = new PjGovernor(IVotes(nftContractAddress), TimelockController(newTimelockController));
+
         PjDAO newPjDAO = new PjDAO(msg.sender, name, description);
-        allPjDAOs.push(address(newPjDAO));
+        
+        allPjDAOs.push(
+            PjDAOInfo({
+                pjDAO: address(newPjDAO),
+                creator: msg.sender,
+                timeLockController: address(newTimelockController),
+                pjGovernor: address(newPjGovernor),
+                name: name,
+                description: description
+            })
+        );
         emit PjDAOCreated(address(newPjDAO), msg.sender);
     }
 
-    function getAllPjDAOs() public view returns (address[] memory) {
+    function getAllPjDAOs() public view returns (PjDAOInfo[] memory) {
         return allPjDAOs;
     }
 
-    // TODO:PJ GovernorをPjDAO毎に作成する
 }
