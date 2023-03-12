@@ -63,7 +63,7 @@ contract PjDAO {
     }
 
 
-    function mintNftByNftOwner(address _targetAddress) public {
+    function mintNft(address _targetAddress) public {
         ActivityInfo storage info = members[_targetAddress].info;
         require(block.number - info.joinedOrlastMintedBlockAt >= MINT_PERIOD, "The target member has not been enrolled for the specified period");
 
