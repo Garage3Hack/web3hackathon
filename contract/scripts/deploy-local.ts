@@ -2,6 +2,8 @@ import { ethers } from "hardhat";
 
 async function main() {
 
+    const [owner, otherAccount] = await ethers.getSigners();
+
     const MemberRegistry = await ethers.getContractFactory("MemberRegistry");
     const memberRegistry = await MemberRegistry.deploy();
 
@@ -27,6 +29,23 @@ async function main() {
 
     console.log("PjDAOFactory contract deployed to:", daoFactory.address);
 
+    const AdminTimelockController = await ethers.getContractFactory("TimelockController");
+    const adminTimelockController = await AdminTimelockController.deploy(
+        1, // sec
+        [owner.getAddress(), otherAccount.getAddress()],
+        [owner.getAddress(), otherAccount.getAddress()],
+        owner.getAddress()
+    );
+
+    console.log("AdminTimelockController contract deployed to:", adminTimelockController.address);
+
+    // const CoreGovernor = await ethers.getContractFactory("CoreGovernor");
+    // const coreGovernor = await CoreGovernor.deploy(
+    //     ethers.getCon(administerNFT.address),
+    //     adminTimelockController
+    // );
+
+    // console.log("AdminTimelockController contract deployed to:", adminTimelockController.address);
 
 }
 
