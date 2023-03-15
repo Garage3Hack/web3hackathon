@@ -1,7 +1,17 @@
+import { usePjDaoFactoryCreatePjDao, usePreparePjDaoFactoryCreatePjDao } from '@/contracts/generated'
 import type { NextPage } from 'next'
 import Head from 'next/head'
-
 const LuiDAORegistration: NextPage = () => {
+    const {config} = usePreparePjDaoFactoryCreatePjDao({
+        address: process.env.NEXT_PUBLIC_PJDAOFACTORY_ADDR as string,
+        args: ['sample', 'sample description']
+    })
+    const { data, isLoading, isSuccess, write } = usePjDaoFactoryCreatePjDao(config)
+    const registDao = () => {
+        console.log("create pj dao", write)
+        write?.()
+        console.log("writed")
+    }
     return (
         <div>
             <Head><title>LuiDAO Registration</title></Head>
@@ -29,7 +39,7 @@ const LuiDAORegistration: NextPage = () => {
                             <textarea className="form-control" id="requiredSkills"
                                 placeholder="Enter skills needed to participate in this LuiDAO" rows={3}></textarea>
                         </div>
-                        <button className="btn btn-primary" type="button">Regist</button>
+                        <button className="btn btn-primary" type="button" onClick={registDao}>Regist</button>
                     </div>
                 </div>
             </div>

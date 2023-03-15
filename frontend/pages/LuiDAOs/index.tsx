@@ -2,8 +2,12 @@ import type { NextPage } from 'next'
 import Image from 'next/image';
 import Head from 'next/head'
 import Link from 'next/link'
+import { usePjDaoFactoryGetAllPjDaOs } from "../../contracts/generated";
 
 const LuiDAOs: NextPage = () => {
+    const { data, isError, isLoading } = usePjDaoFactoryGetAllPjDaOs({
+        address: process.env.NEXT_PUBLIC_PJDAOFACTORY_ADDR as `0x${string}` | undefined
+    })
     const json = [
         { id: 1, name: 'Test DAO', image: '/images/00025-796973551.png', description: 'This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.', update: '2023/3/11' },
         { id: 2, name: 'Canvas DAO', image: '/images/00087-2503621524.png', description: 'This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.', update: '2023/3/11' },
@@ -19,17 +23,18 @@ const LuiDAOs: NextPage = () => {
                         This page creates and manages LuiDAO. It displays LuiDAO information in card format. Click on the title of each card for more information.
                     </p>
                 </div>
+                <p>{data?.length}</p>
                 <div className="row row-cols-1 row-cols-md-3 g-4">
-                    {json.map(dao => (
-                        <div className="col">
+                    {data?.map(dao => (
+                        <div key={dao.name} className="col">
                             <div className="card h-100 text-dark">
-                                <Image alt="{dao.name}" src={dao.image} width="300" height="180" className="card-img-top img-fluid" style={{ aspectRatio: 4 / 3 }} />
+                                <Image alt="{dao.name}" src={json[0].image} width="300" height="180" className="card-img-top img-fluid" style={{ aspectRatio: 4 / 3 }} />
                                 <div className="card-body">
                                     <h5 className="card-title"><Link href="/LuiDAODetails">{dao.name}</Link></h5>
                                     <p className="card-text">{dao.description}</p>
                                 </div>
                                 <div className="card-footer">
-                                    <small className="text-muted">Last updated {dao.update}</small>
+                                    <small className="text-muted">Last updated {dao.timeLockController}</small>
                                 </div>
                             </div>
                         </div>

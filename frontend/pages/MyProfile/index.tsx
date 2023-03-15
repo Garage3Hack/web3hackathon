@@ -1,12 +1,37 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
+import { useMemberNftBalanceOf, useMemberNftSafeMint, usePrepareMemberNftSafeMint } from '@/contracts/generated'
+import { useAccount, useWaitForTransaction } from 'wagmi'
 
 const MyProfile: NextPage = () => {
+    const account = useAccount()
+    const {config} = usePrepareMemberNftSafeMint({
+        address: process.env.NEXT_PUBLIC_MEMBERNFT_ADDR as `0x${string}`,
+        args: ['0x90F79bf6EB2c4f870365E785982E1f101E93b906', 'https://ipfs.io/ipfs/QmZ9QkhHKTPjtpNf23XSJYN7JBRNUTX5ST2zZf9marTZoQ/26.json']
+    })
+    const { data, write } = useMemberNftSafeMint(config)
+
+    const balanceOfResult = useMemberNftBalanceOf({
+        address: process.env.NEXT_PUBLIC_MEMBERNFT_ADDR as `0x${string}`,
+        args: ['0x90F79bf6EB2c4f870365E785982E1f101E93b906']
+    })
+    
+    const beAMember = () => {
+        console.log("be a member", write)
+        write?.()
+    }
+    const { isLoading, isSuccess } = useWaitForTransaction({
+        hash: data?.hash,
+      })
     return (
         <div>
             <div className="row mb-3" style={{ padding: "1.5rem" }}>
                 <div>
-                    <h2>My Profile</h2>
+                    <h2>My Profile: {data?.hash} {isLoading === true ? 'loading' : ''} {isSuccess === true ? 'success' : 'noop'}</h2>
+                    <button className="btn btn-primary" type="button" onClick={beAMember}>Be Create</button>
+                </div>
+                <div>
+                    balance of {balanceOfResult?.data?.toString()}
                 </div>
                 <div className="col">
                     <div className="card mb-4">

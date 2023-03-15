@@ -1,7 +1,11 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { Web3Button, Web3NetworkSwitch } from '@web3modal/react'
+
 
 const LuidaoHeader = () => {
+
+
     return (
         <div className="row">
             <nav className="navbar navbar-expand-lg bg-light">
@@ -28,6 +32,10 @@ const LuidaoHeader = () => {
                             </li>
                         </ul>
                         <ul className="navbar-nav d-flex flex-row me-1">
+
+                            <li className="nav-item me-3 me-lg-0">
+                                <Web3Button icon="show" label="Connect Wallet" balance="show" />
+                            </li>
                             <li className="nav-item me-3 me-lg-0">
                                 <a className="nav-link" href="#"><Image alt="settings" src="/icons/gear-fill.svg" width="16" height="16" /> Settings </a>
                             </li>
