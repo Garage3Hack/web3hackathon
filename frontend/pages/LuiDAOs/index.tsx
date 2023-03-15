@@ -25,8 +25,8 @@ const LuiDAOs: NextPage = () => {
                 </div>
                 <p>{data?.length}</p>
                 <div className="row row-cols-1 row-cols-md-3 g-4">
-                    {data?.map(dao => (
-                        <div key={dao.name} className="col">
+                    {data?.map((dao, index) => (
+                        <div key={index} className="col">
                             <div className="card h-100 text-dark">
                                 <Image alt="{dao.name}" src={json[0].image} width="300" height="180" className="card-img-top img-fluid" style={{ aspectRatio: 4 / 3 }} />
                                 <div className="card-body">
