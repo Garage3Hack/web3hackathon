@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "generate": "npx wagmi generate",
     "node": "npx hardhat node",
     "test": "npx hardhat test",
     "dev": "npx hardhat run scripts/deploy-local.ts --network localhost"
@@ -12,6 +13,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@wagmi/cli": "^0.1.13",
     "hardhat": "^2.13.0",
     "ts-node": "^10.9.1"
   },

@@ -1,9 +1,30 @@
+import useDebounce from '@/common/useDebounce'
+import { usePjDaoAddMember, usePjDaoGetIssueList, usePreparePjDaoAddMember } from '@/contracts/generated'
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
+import { useState } from 'react'
 
 const LuiDAODetails: NextPage = () => {
+    const router = useRouter();
+    const { pjdao_addr } = router.query;
+    const issues = usePjDaoGetIssueList({
+        address: pjdao_addr as `0x${string}`
+    })
+
+    const [memberAddr, setMemberAddr] = useState<`0x${string}`>('0x0')
+    const debouncedMemberAddr = useDebounce(memberAddr, 500)
+
+    const {config} = usePreparePjDaoAddMember({
+        address: pjdao_addr as `0x${string}`,
+        args: [debouncedMemberAddr, 0]
+    })
+
+    const {data, write} = usePjDaoAddMember(config)
+
+    // パスパラメータから値を取得
     // Issueテストデータ
     const json1 = [
         { id: 1, issue_name: 'AAAAAAAA', responsible: 'Aikei', status: 'In Progress', link: '/IssueDetails'},
@@ -22,12 +43,6 @@ const LuiDAODetails: NextPage = () => {
         { id: 2, document: 'BBBBBBBB', link: 'http://aaaa' },
         { id: 3, document: 'CCCCCCCC', link: 'http://aaaa' },
     ]
-
-    // 参加申請
-    const Join = () => {
-        alert("Join!");
-    }
-
     // 成果物追加
     const Add = () => {
         alert("Add!");
@@ -63,21 +78,21 @@ const LuiDAODetails: NextPage = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {json1.map(issue => (
-                                        <tr>
-                                            <th scope="row">{issue.id}</th>
-                                            <td>{issue.issue_name}</td>
-                                            <td>{issue.responsible}</td>
-                                            <td>{issue.status}</td>
+                                    { issues.data ? issues.data[0].map((issue, index) => (
+                                        <tr key={`issue-${index}`}>
+                                            <th scope="row">{index}</th>
+                                            <td>{issues.data![0][index]}</td>
+                                            <td>{`-`}</td>
+                                            <td>{issues.data![1][index]}</td>
                                             <td>
-                                                <button type="button" className="btn btn-light"><Link href={issue.link}><Image alt="refer" src="/icons/eye.svg" width="16" height="16" /></Link></button>
+                                                <button type="button" className="btn btn-light"><Link href={""}><Image alt="refer" src="/icons/eye.svg" width="16" height="16" /></Link></button>
                                                 <button type="button" className="btn btn-light"><Image alt="trash" src="/icons/trash3.svg" width="16" height="16" /></button>
                                             </td>
                                         </tr>
-                                    ))}
+                                    )) : <></> }
                                 </tbody>
                             </table>
-                            <button className="btn btn-primary" type="button"><Link href="/IssueRegistration">Regist</Link></button>
+                            <button className="btn btn-primary" type="button"><Link href={`/IssueRegistration/${pjdao_addr}`}>Regist</Link></button>
                         </div>
                     </div>
                 </div>
@@ -107,7 +122,19 @@ const LuiDAODetails: NextPage = () => {
                                     ))}
                                 </tbody>
                             </table>
-                            <button className="btn btn-primary" type="button" onClick={Join}>Join</button>
+                            <form onSubmit={(e) => {
+                                e.preventDefault()
+                                console.log("create pj dao", write)
+                                write?.()
+                            }}>
+                                <div className="mb-3">
+                                    <label className="form-label">Member addr</label>
+                                    <input type="text" className="form-control" id="memberAddr"
+                                        placeholder="Enter member address to invite this pj DAO"
+                                        value={memberAddr} onChange={(e) => {setMemberAddr(e.target.value)}} />
+                                </div>
+                                <button className="btn btn-primary" type="submit">Add</button>
+                            </form>
                         </div>
                     </div>
                 </div>
