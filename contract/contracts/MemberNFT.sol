@@ -17,7 +17,7 @@ contract MemberNFT is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable
 
     constructor() ERC721("MemberNFT", "MEM") EIP712("MemberNFT", "1") {}
 
-    function safeMint(address to, string memory uri) public onlyOwner {
+    function safeMint(address to, string memory uri) {
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
