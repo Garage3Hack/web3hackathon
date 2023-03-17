@@ -78,6 +78,7 @@ contract PjDAO {
         description = _description;
         members[_owner].role = PjRole.PRODUCTMANAGER;
         badgeNftContractAddress = _badgeNftContractAddress;
+        memberList.push(_owner);
     }
 
     function getAllMembers() public view returns (address[] memory) {

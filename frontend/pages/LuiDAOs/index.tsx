@@ -2,17 +2,36 @@ import type { NextPage } from 'next'
 import Image from 'next/image';
 import Head from 'next/head'
 import Link from 'next/link'
-import { usePjDaoFactoryGetAllPjDaOs } from "../../contracts/generated";
+import { useMemberNftBalanceOf, usePjDaoFactoryGetAllPjDaOs } from "@/contracts/generated";
+import { useAccount } from 'wagmi';
+import { useEffect } from 'react';
+import { BigNumber } from 'ethers';
+import { useRouter } from 'next/router';
 
 const LuiDAOs: NextPage = () => {
+    const account = useAccount()
+    const router = useRouter()
     const { data, isError, isLoading } = usePjDaoFactoryGetAllPjDaOs({
         address: process.env.NEXT_PUBLIC_PJDAOFACTORY_ADDR as `0x${string}` | undefined
+    })
+    const balanceOfResult = useMemberNftBalanceOf({
+        address: process.env.NEXT_PUBLIC_MEMBERNFT_ADDR as `0x${string}`,
+        args: [account.address]
     })
     const json = [
         { id: 1, name: 'Test DAO', image: 'https://ipfs.io/ipfs/QmNPHSQGmMxgnHB3hWg6DVgQoAkcjjKGXRXykGoYNrnHJD/0.png', description: 'This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.', update: '2023/3/11' },
         { id: 2, name: 'Canvas DAO', image: '/images/00087-2503621524.png', description: 'This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.', update: '2023/3/11' },
         { id: 3, name: 'Supply DAO', image: '/images/00114-535645852.png', description: 'This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.', update: '2023/3/11' },
     ]
+    useEffect(()=>{
+        if (balanceOfResult) {
+            if (balanceOfResult.data){
+                if(balanceOfResult.data.toNumber() === 0) {
+                    router.push('/MyProfile')
+                }
+            }
+        }
+    }, [balanceOfResult])
     return (
         <div>
             <Head><title>LuiDAOs</title></Head>
