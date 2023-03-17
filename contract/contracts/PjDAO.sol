@@ -41,6 +41,7 @@ contract PjDAO {
     }
 
     mapping(address => Member) public members;
+    address[] private memberList;
 
     address public owner;
     address public badgeNftContractAddress;
@@ -79,9 +80,14 @@ contract PjDAO {
         badgeNftContractAddress = _badgeNftContractAddress;
     }
 
+    function getAllMembers() public view returns (address[] memory) {
+        return memberList;
+    }
+
     function addMember(address _memberAddress, PjRole _role) public onlyOwner {
         require(members[_memberAddress].role == PjRole.None, "PjDAO: Member already exists");
         members[_memberAddress] = Member(_role, ActivityInfo(block.number));
+        memberList.push(_memberAddress);
 
         emit MemberAdded(_memberAddress, _role);
     }
@@ -89,7 +95,13 @@ contract PjDAO {
     function removeMember(address _memberAddress) public onlyOwner {
         require(members[_memberAddress].role != PjRole.None, "PjDAO: Member does not exist");
         delete members[_memberAddress];
-
+        for (uint256 i = 0; i < memberList.length; i++) {
+            if (memberList[i] == _memberAddress) {
+                memberList[i] = memberList[memberList.length - 1];
+                memberList.pop();
+                break;
+            }
+        }
         emit MemberRemoved(_memberAddress);
     }
 

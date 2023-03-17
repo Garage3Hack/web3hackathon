@@ -9,7 +9,7 @@ const LuiDAOs: NextPage = () => {
         address: process.env.NEXT_PUBLIC_PJDAOFACTORY_ADDR as `0x${string}` | undefined
     })
     const json = [
-        { id: 1, name: 'Test DAO', image: '/images/00025-796973551.png', description: 'This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.', update: '2023/3/11' },
+        { id: 1, name: 'Test DAO', image: 'https://ipfs.io/ipfs/QmNPHSQGmMxgnHB3hWg6DVgQoAkcjjKGXRXykGoYNrnHJD/0.png', description: 'This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.', update: '2023/3/11' },
         { id: 2, name: 'Canvas DAO', image: '/images/00087-2503621524.png', description: 'This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.', update: '2023/3/11' },
         { id: 3, name: 'Supply DAO', image: '/images/00114-535645852.png', description: 'This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.', update: '2023/3/11' },
     ]

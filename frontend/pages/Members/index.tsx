@@ -2,11 +2,13 @@ import type { NextPage } from 'next'
 import Head from 'next/head'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useMemberRegistry, useMemberRegistryGetAllMembers } from '@/contracts/generated'
+import { useMemberRegistry, useMemberRegistryAddMember, useMemberRegistryGetAllMembers, usePrepareMemberRegistryAddMember } from '@/contracts/generated'
 import { useEffect, useState } from 'react'
+import { useProvider } from 'wagmi'
 
 interface Member {name: string, introduction: string, skills: readonly string[]};
 const Members: NextPage = () => {
+    const provider = useProvider()
     const json = [
         { id: 1, name: 'Aikei', role: 'Engineer', link: '/MyProfile' },
         { id: 2, name: 'Koizumi', role: 'Engineer', link: '/MyProfile' },
@@ -18,26 +20,29 @@ const Members: NextPage = () => {
     })
 
     const memberRegistryContract = useMemberRegistry({
-        address: process.env.NEXT_PUBLIC_MEMBERREGISTRY_ADDR as `0x${string}` | undefined
+        address: process.env.NEXT_PUBLIC_MEMBERREGISTRY_ADDR as `0x${string}` | undefined,
+        signerOrProvider: provider
     })
 
     const [members, setMembers] = useState<Member[]>([])
     useEffect( () => {
         const fetchMembers = async () => {
-            const mems = [] as Member[]
-            for (let index = 0; index < data?.length!; index++) {
-                const memberAddr = data![index];
-                const mem = await memberRegistryContract?.getMember(memberAddr)
-                members.push({
-                    name: mem![0],
-                    introduction: mem![1],
-                    skills: mem![2],
-                })
+            if (memberRegistryContract){
+                const mems = [] as Member[]
+                for (let index = 0; index < data?.length!; index++) {
+                    const memberAddr = data![index];
+                    const mem = await memberRegistryContract.getMember(memberAddr)
+                    mems.push({
+                        name: mem![0],
+                        introduction: mem![1],
+                        skills: mem![2],
+                    })
+                }
+                setMembers(mems)
             }
-            setMembers(mems)
         }
         fetchMembers()
-    }, [data])
+    }, [data, memberRegistryContract])
 
 
 
@@ -66,11 +71,11 @@ const Members: NextPage = () => {
                                 <tbody>
                                     {members.map((member, index) => (
                                         <tr key={`mem-${index}`}>
-                                            <th scope="row">{member.id}</th>
+                                            <th scope="row">{index}</th>
                                             <td>{member.name}</td>
                                             <td>{member.introduction}</td>
                                             <td>
-                                                <button type="button" className="btn btn-light"><Link href={member.link}><Image alt="refer" src="/icons/eye.svg" width="16" height="16"/></Link></button>
+                                                <button type="button" className="btn btn-light"><Link href={`/`}><Image alt="refer" src="/icons/eye.svg" width="16" height="16"/></Link></button>
                                                 <button type="button" className="btn btn-light"><Image alt="trash" src="/icons/trash3.svg" width="16" height="16"/></button>
                                             </td>
                                         </tr>
