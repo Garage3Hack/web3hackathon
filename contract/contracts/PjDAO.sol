@@ -163,7 +163,7 @@ contract PjDAO {
         emit MvpNFTMinted(maxMemberAddress);
     }
 
-    function getMvpAddress() public view returns (address) {
+    function getRecentMvpAddress() public view returns (address) {
         require(mvpAddressHistory.length > 0, "No MVP address found");
         return mvpAddressHistory[mvpAddressHistory.length - 1];
     }
