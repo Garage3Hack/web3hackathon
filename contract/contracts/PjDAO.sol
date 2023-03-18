@@ -57,6 +57,7 @@ contract PjDAO {
     uint256 public issueId = 0;
 
     mapping(PjRole => string) public tokenURIs;
+    string public mvpBadgeTokenUri = "https://ipfs.io/ipfs/QmV7JPHWM61Ef4miVcMaH5dJ9zGUp7tDyDjesSEFBkqk2i";
 
     event MemberAdded(address indexed memberAddress, PjRole role);
     event MemberRemoved(address indexed memberAddress);
@@ -64,6 +65,7 @@ contract PjDAO {
     event IssueAdded(uint256 indexed issueId, string title, string description, address indexed creator, IssueStatus status, uint256 createdBlockAt);
     event IssueLiked(uint256 indexed issueId, address indexed memberAddress, uint256 indexed likeCount);
     event IssueStatusChanged(uint256 indexed id, IssueStatus status, uint256 doneBlock);
+    event MvpNFTMinted(address indexed maxMemberAddress);
 
     modifier onlyOwner() {
         require(msg.sender == owner, "PjDAO: Only owner can access.");
@@ -122,6 +124,7 @@ contract PjDAO {
     function mintNft(address _targetAddress, PjRole _role) public {
         ActivityInfo storage info = members[_targetAddress].info;
         require(block.number - info.joinedOrLastMintedBlockAt >= MINT_PERIOD, "The target member has not been enrolled for the specified period");
+        require(members[_targetAddress].role == _role, "PjDAO: Role does not match");
 
         // NFTの発行処理
         BadgeNFT nftContract = BadgeNFT(badgeNftContractAddress);
@@ -131,6 +134,28 @@ contract PjDAO {
         info.joinedOrLastMintedBlockAt = block.number;
 
         emit NFTMinted(msg.sender, _targetAddress, _role);
+    }
+
+    function mintMvpNft() public {
+        address maxMemberAddress;
+        uint256 maxLikeCount = 0;
+
+        // 全てのメンバーのgetLikeCountWithinBlockを取得し、最大のものを探す
+        for (uint256 i = 0; i < memberList.length; i++) {
+            address memberAddress = memberList[i];
+            uint256 likeCount = getLikeCountWithinBlock(memberAddress);
+            if (likeCount > maxLikeCount) {
+                maxLikeCount = likeCount;
+                maxMemberAddress = memberAddress;
+            }
+        }
+
+        // 最大のメンバーに対してmintMvpNftメソッドを実行する
+        BadgeNFT nftContract = BadgeNFT(badgeNftContractAddress);
+
+        string memory tokenURI = mvpBadgeTokenUri;
+        nftContract.safeMint(maxMemberAddress, tokenURI);
+        emit MvpNFTMinted(maxMemberAddress);
     }
 
     function addIssue(string memory _title, string memory _description, address _creator) public onlyMember returns (uint256) {
@@ -208,18 +233,20 @@ contract PjDAO {
         return (issue.title, issue.description, issue.creator, issue.status, issue.createdBlockAt, issue.closedBlockAt);
     }
 
-    function getLikeCountWithinBlock(address _memberAddress, uint256 _blockCount) public view returns (uint256) {
+    function getLikeCountWithinBlock(address _memberAddress) public view returns (uint256) {
         uint256 issueCount = issueId;
         uint256 likeCount = 0;
 
         for (uint256 i = 1; i <= issueCount; i++) {
-            if (issues[i].status == IssueStatus.Done && block.number - issues[i].closedBlockAt <= _blockCount) {
+            if (issues[i].status == IssueStatus.Done && block.number - issues[i].closedBlockAt <= RECENT_ISSUE_PERIOD) {
                 likeCount += issues[i].likeCounts[_memberAddress];
             }
         }
 
         return likeCount;
     }
+
+
 
     function issueCount() public view returns (uint256) {
         return issueId;
