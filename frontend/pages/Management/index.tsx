@@ -51,63 +51,65 @@ const Management: NextPage = () => {
       <Head>
         <title>Management:Voting</title>
       </Head>
-      <div className="accordion" id="voting-list">
-        {daos.map((luidao, index) => (
-          <div key={"voting-" + index} className="accordion-item">
-            <h2 className="accordion-header" id={"heading-" + index}>
-              <button
-                className="accordion-button"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target={"#collapse-" + index}
-                aria-controls={"collapse-" + index}
+      <div className="row mb-3" style={{ padding: "1.5rem" }}>
+        <div className="accordion" id="voting-list">
+          {daos.map((luidao, index) => (
+            <div key={"voting-" + index} className="accordion-item">
+              <h2 className="accordion-header" id={"heading-" + index}>
+                <button
+                  className="accordion-button"
+                  type="button"
+                  data-bs-toggle="collapse"
+                  data-bs-target={"#collapse-" + index}
+                  aria-controls={"collapse-" + index}
+                >
+                  {luidao.name}
+                </button>
+              </h2>
+              <div
+                id={"collapse-" + index}
+                className="accordion-collapse collapse"
+                aria-labelledby={"heading-" + index}
               >
-                {luidao.name}
-              </button>
-            </h2>
-            <div
-              id={"collapse-" + index}
-              className="accordion-collapse collapse"
-              aria-labelledby={"heading-" + index}
-            >
-              <div className="accordion-body">{luidao.description}</div>
-              <div>
-                <table className="table">
-                  <thead>
-                    <tr>
-                      <th scope="col">#</th>
-                      <th scope="col">Document Name</th>
-                      <th scope="col">Link</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {luidao.deliverables.map((doc, index) => (
-                      <tr key={"doc-" + index}>
-                        <th scope="row">{index}</th>
-                        <td>{doc.document}</td>
-                        <td>
-                          <Link href={doc.link}>{doc.link}</Link>
-                        </td>
+                <div className="accordion-body">{luidao.description}</div>
+                <div>
+                  <table className="table">
+                    <thead>
+                      <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Document Name</th>
+                        <th scope="col">Link</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              <div>
-                <button type="button" className="btn btn-primary">
-                  Pros
-                </button>
-                <button type="button" className="btn btn-primary">
-                  Cons
-                </button>
-                <button type="button" className="btn btn-primary">
-                  Decline
-                </button>
+                    </thead>
+                    <tbody>
+                      {luidao.deliverables.map((doc, index) => (
+                        <tr key={"doc-" + index}>
+                          <th scope="row">{index}</th>
+                          <td>{doc.document}</td>
+                          <td>
+                            <Link href={doc.link}>{doc.link}</Link>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div>
+                  <button type="button" className="btn btn-primary">
+                    Pros
+                  </button>
+                  <button type="button" className="btn btn-primary">
+                    Cons
+                  </button>
+                  <button type="button" className="btn btn-primary">
+                    Decline
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-        ;
+          ))}
+          ;
+        </div>
       </div>
     </div>
   );
