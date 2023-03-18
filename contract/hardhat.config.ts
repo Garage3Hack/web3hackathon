@@ -15,10 +15,12 @@ const config: HardhatUserConfig = {
   defaultNetwork: "hardhat",
   networks: {
     hardhat: {
-      allowUnlimitedContractSize: true
+      allowUnlimitedContractSize: true,
+      gas: 500000,
     },
     localhost: {
       allowUnlimitedContractSize: true,
+      gas: 500000,
     }
   },
 };
