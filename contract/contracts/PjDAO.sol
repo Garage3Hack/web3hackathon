@@ -58,6 +58,7 @@ contract PjDAO {
 
     mapping(PjRole => string) public tokenURIs;
     string public mvpBadgeTokenUri = "https://ipfs.io/ipfs/QmV7JPHWM61Ef4miVcMaH5dJ9zGUp7tDyDjesSEFBkqk2i";
+    address[] public mvpAddressHistory;
 
     event MemberAdded(address indexed memberAddress, PjRole role);
     event MemberRemoved(address indexed memberAddress);
@@ -155,7 +156,16 @@ contract PjDAO {
 
         string memory tokenURI = mvpBadgeTokenUri;
         nftContract.safeMint(maxMemberAddress, tokenURI);
+
+        // 最大のメンバーアドレスをmvpAddressHistoryに追加する
+        mvpAddressHistory.push(maxMemberAddress);
+
         emit MvpNFTMinted(maxMemberAddress);
+    }
+
+    function getMvpAddress() public view returns (address) {
+        require(mvpAddressHistory.length > 0, "No MVP address found");
+        return mvpAddressHistory[mvpAddressHistory.length - 1];
     }
 
     function addIssue(string memory _title, string memory _description, address _creator) public onlyMember returns (uint256) {
