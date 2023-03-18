@@ -18,7 +18,8 @@ contract PjDAO {
         ToDo,
         InProgress,
         Done,
-        Pending
+        Pending,
+        Rated
     }
 
     struct ActivityInfo {
@@ -48,6 +49,7 @@ contract PjDAO {
     address public badgeNftContractAddress;
     string public name;
     string public description;
+    string public pjImageUri;
 
     uint256 public constant MINT_PERIOD = 300; // 期間 300 ブロック*12 = 3600sec
     uint256 public constant MINT_AMOUNT = 1; // 発行数 1 枚
@@ -58,6 +60,7 @@ contract PjDAO {
 
     mapping(PjRole => string) public tokenURIs;
     string public mvpBadgeTokenUri = "https://ipfs.io/ipfs/QmV7JPHWM61Ef4miVcMaH5dJ9zGUp7tDyDjesSEFBkqk2i";
+    address[] public mvpAddressHistory;
 
     event MemberAdded(address indexed memberAddress, PjRole role);
     event MemberRemoved(address indexed memberAddress);
@@ -77,13 +80,14 @@ contract PjDAO {
         _;
     }
 
-    constructor(address _owner, string memory _name, string memory _description, address _badgeNftContractAddress) {
+    constructor(address _owner, string memory _name, string memory _description, address _badgeNftContractAddress, string memory _pjImageUri) {
         owner = _owner;
         name = _name;
         description = _description;
         members[_owner].role = PjRole.PRODUCTMANAGER;
         badgeNftContractAddress = _badgeNftContractAddress;
         memberList.push(_owner);
+        pjImageUri = _pjImageUri;
         
         tokenURIs[PjRole.NONE] = "https://ipfs.io/ipfs/QmabCLCMyLgyUkGgTN8W5Dh16Y6r2yWLB2LreRFifpnXsq";
         tokenURIs[PjRole.PRODUCTMANAGER] = "https://ipfs.io/ipfs/QmUtqt9gd2wnXagsZ4CiZui6dY1xd9GHRd5F6qEAVM3joG";
@@ -155,7 +159,24 @@ contract PjDAO {
 
         string memory tokenURI = mvpBadgeTokenUri;
         nftContract.safeMint(maxMemberAddress, tokenURI);
+
+        // 最大のメンバーアドレスをmvpAddressHistoryに追加する
+        mvpAddressHistory.push(maxMemberAddress);
+
+        // Issueを評価したものは、RatedのStatusへ変更し、再度評価されないようにする。
+        uint256 issueCount = issueId;
+        for (uint256 i = 0; i < issueCount; i++) {
+            if (issues[i].status == IssueStatus.Done && block.number - issues[i].closedBlockAt <= RECENT_ISSUE_PERIOD) {
+                issues[i].status = IssueStatus.Rated;
+            }
+        }
+
         emit MvpNFTMinted(maxMemberAddress);
+    }
+
+    function getRecentMvpAddress() public view returns (address) {
+        require(mvpAddressHistory.length > 0, "No MVP address found");
+        return mvpAddressHistory[mvpAddressHistory.length - 1];
     }
 
     function addIssue(string memory _title, string memory _description, address _creator) public onlyMember returns (uint256) {
@@ -187,6 +208,7 @@ contract PjDAO {
 
     function changeIssueStatus(uint256 _issueId, IssueStatus _status) public onlyMember {
         require(issues[_issueId].id == _issueId, "Issue does not exist");
+        require(_status != IssueStatus.Rated, "Rated Issue can not change status");
         require(_status == IssueStatus.ToDo || _status == IssueStatus.InProgress || _status == IssueStatus.Done || _status == IssueStatus.Pending, "Invalid status");
 
         issues[_issueId].status = _status;
@@ -221,7 +243,9 @@ contract PjDAO {
             return "Done";
         } else if (_status == IssueStatus.Pending) {
             return "Pending";
-        } else {
+        } else if (_status == IssueStatus.Rated) {
+            return "Rated";
+        }else {
             revert("Invalid issue status");
         }
     }
