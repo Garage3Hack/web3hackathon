@@ -1,28 +1,37 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
-import { useMemberNftBalanceOf, useMemberNftSafeMint, usePrepareMemberNftSafeMint } from '@/contracts/generated'
+import { useMemberNftBalanceOf, useMemberNftSafeMint, useMemberRegistryAddMember, usePrepareMemberNftSafeMint, usePrepareMemberRegistryAddMember } from '@/contracts/generated'
 import { useAccount, useWaitForTransaction } from 'wagmi'
 
 const MyProfile: NextPage = () => {
     const account = useAccount()
     const {config} = usePrepareMemberNftSafeMint({
         address: process.env.NEXT_PUBLIC_MEMBERNFT_ADDR as `0x${string}`,
-        args: ['0x90F79bf6EB2c4f870365E785982E1f101E93b906', 'https://ipfs.io/ipfs/QmZ9QkhHKTPjtpNf23XSJYN7JBRNUTX5ST2zZf9marTZoQ/26.json']
+        args: [account.address as string, 'https://ipfs.io/ipfs/QmZ9QkhHKTPjtpNf23XSJYN7JBRNUTX5ST2zZf9marTZoQ/26.json']
     })
     const { data, write } = useMemberNftSafeMint(config)
 
     const balanceOfResult = useMemberNftBalanceOf({
         address: process.env.NEXT_PUBLIC_MEMBERNFT_ADDR as `0x${string}`,
-        args: ['0x90F79bf6EB2c4f870365E785982E1f101E93b906']
+        args: [account.address as string]
     })
     
     const beAMember = () => {
         console.log("be a member", write)
         write?.()
+        addMember.write?.()
     }
     const { isLoading, isSuccess } = useWaitForTransaction({
         hash: data?.hash,
       })
+
+    const memRegist = usePrepareMemberRegistryAddMember({
+        address: process.env.NEXT_PUBLIC_MEMBERREGISTRY_ADDR as `0x${string}` | undefined,
+        args: [account.address as string, 'hello!', []]
+    })
+
+    const addMember = useMemberRegistryAddMember(memRegist.config)
+
     return (
         <div>
             <div className="row mb-3" style={{ padding: "1.5rem" }}>

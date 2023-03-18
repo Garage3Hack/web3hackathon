@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
 
+
 const LuiDAODetails: NextPage = () => {
     const router = useRouter();
     const { pjdao_addr } = router.query;

@@ -5,12 +5,13 @@ import "./BadgeNFT.sol";
 
 contract PjDAO {
     enum PjRole {
-        None,
+        NONE,
         PRODUCTMANAGER,
         PROJECTMANAGER,
         DEVELOPER,
         DESIGNER,
-        MARKETER
+        MARKETER,
+        QAENGINEER
     }
 
     enum IssueStatus {
@@ -21,7 +22,7 @@ contract PjDAO {
     }
 
     struct ActivityInfo {
-        uint256 joinedOrlastMintedBlockAt;
+        uint256 joinedOrLastMintedBlockAt;
     }
 
     struct Member {
@@ -41,6 +42,7 @@ contract PjDAO {
     }
 
     mapping(address => Member) public members;
+    address[] private memberList;
 
     address public owner;
     address public badgeNftContractAddress;
@@ -52,11 +54,13 @@ contract PjDAO {
     uint256 public constant RECENT_ISSUE_PERIOD = 300; // 期間 300 ブロック*12 = 3600sec
 
     mapping(uint256 => Issue) public issues;
-    uint256 public issueId = 0; // max issue count
+    uint256 public issueId = 0;
+
+    mapping(PjRole => string) public tokenURIs;
 
     event MemberAdded(address indexed memberAddress, PjRole role);
     event MemberRemoved(address indexed memberAddress);
-    event NFTMinted(address indexed owner, address indexed memberAddress);
+    event NFTMinted(address indexed owner, address indexed memberAddress, PjRole role);
     event IssueAdded(uint256 indexed issueId, string title, string description, address indexed creator, IssueStatus status, uint256 createdBlockAt);
     event IssueLiked(uint256 indexed issueId, address indexed memberAddress, uint256 indexed likeCount);
     event IssueStatusChanged(uint256 indexed id, IssueStatus status, uint256 doneBlock);
@@ -67,7 +71,7 @@ contract PjDAO {
     }
 
     modifier onlyMember() {
-        require(members[msg.sender].role != PjRole.None, "Only members can execute this function.");
+        require(members[msg.sender].role != PjRole.NONE, "Only members can execute this function.");
         _;
     }
 
@@ -77,38 +81,59 @@ contract PjDAO {
         description = _description;
         members[_owner].role = PjRole.PRODUCTMANAGER;
         badgeNftContractAddress = _badgeNftContractAddress;
+
+        tokenURIs[PjRole.NONE] = "https://ipfs.io/ipfs/QmabCLCMyLgyUkGgTN8W5Dh16Y6r2yWLB2LreRFifpnXsq";
+        tokenURIs[PjRole.PRODUCTMANAGER] = "https://ipfs.io/ipfs/QmUtqt9gd2wnXagsZ4CiZui6dY1xd9GHRd5F6qEAVM3joG";
+        tokenURIs[PjRole.PROJECTMANAGER] = "https://ipfs.io/ipfs/QmZqYgedLAsgc7TbHhdauHNeV8b2XhzeBmHcD46SA4c3WG";
+        tokenURIs[PjRole.DEVELOPER] = "https://ipfs.io/ipfs/QmfGgHUNoX5LQiW7XcN8YhrDshaH64Dvn6cvNDVcxm5bXY";
+        tokenURIs[PjRole.DESIGNER] = "https://ipfs.io/ipfs/QmNcCYUKGgdXbMqogSsvUTkt5nLEccJFWKE9eGT1NZ1kbf";
+        tokenURIs[PjRole.MARKETER] = "https://ipfs.io/ipfs/QmT2MkyoqPjMYaXKxFQyYUJp16bzQFia33oP1z1jUY3XK3";
+        tokenURIs[PjRole.QAENGINEER] = "https://ipfs.io/ipfs/QmTgHSrg9aHSvdVLpjKZki2fQdErqKX8UthZci1tdNRQmn";
+    }
+
+    function getAllMembers() public view returns (address[] memory) {
+        return memberList;
     }
 
     function addMember(address _memberAddress, PjRole _role) public onlyOwner {
-        require(members[_memberAddress].role == PjRole.None, "PjDAO: Member already exists");
+        require(members[_memberAddress].role == PjRole.NONE, "PjDAO: Member already exists");
         members[_memberAddress] = Member(_role, ActivityInfo(block.number));
+        memberList.push(_memberAddress);
 
         emit MemberAdded(_memberAddress, _role);
     }
 
     function removeMember(address _memberAddress) public onlyOwner {
-        require(members[_memberAddress].role != PjRole.None, "PjDAO: Member does not exist");
+        require(members[_memberAddress].role != PjRole.NONE, "PjDAO: Member does not exist");
         delete members[_memberAddress];
-
+        for (uint256 i = 0; i < memberList.length; i++) {
+            if (memberList[i] == _memberAddress) {
+                memberList[i] = memberList[memberList.length - 1];
+                memberList.pop();
+                break;
+            }
+        }
         emit MemberRemoved(_memberAddress);
     }
 
 
-    function mintNft(address _targetAddress) public {
+    function mintNft(address _targetAddress, PjRole _role) public {
         ActivityInfo storage info = members[_targetAddress].info;
-        require(block.number - info.joinedOrlastMintedBlockAt >= MINT_PERIOD, "The target member has not been enrolled for the specified period");
+        require(block.number - info.joinedOrLastMintedBlockAt >= MINT_PERIOD, "The target member has not been enrolled for the specified period");
 
         // NFTの発行処理
         BadgeNFT nftContract = BadgeNFT(badgeNftContractAddress);
-        nftContract.safeMint(_targetAddress, "token_uri");
-        info.joinedOrlastMintedBlockAt = block.number;
 
-        emit NFTMinted(msg.sender, _targetAddress);
+        string memory tokenURI = tokenURIs[_role];
+        nftContract.safeMint(_targetAddress, tokenURI);
+        info.joinedOrLastMintedBlockAt = block.number;
+
+        emit NFTMinted(msg.sender, _targetAddress, _role);
     }
 
     function addIssue(string memory _title, string memory _description, address _creator) public onlyMember returns (uint256) {
         issueId++;
-        // issues[issueId] = Issue(issueId, _title, _description, _creator, IssueStatus.ToDo, block.number, 0);
+        
         issues[issueId].id = issueId;
         issues[issueId].title = _title;
         issues[issueId].description = _description;
@@ -151,7 +176,7 @@ contract PjDAO {
         string[] memory titles = new string[](issueCount);
         string[] memory statuses = new string[](issueCount);
 
-        for (uint256 i = 0; i < issueCount; i++) {
+        for (uint256 i = 1; i <= issueCount; i++) {
             titles[i] = issues[i].title;
             statuses[i] = statusToString(issues[i].status);
         }
@@ -185,7 +210,7 @@ contract PjDAO {
         uint256 issueCount = issueId;
         uint256 likeCount = 0;
 
-        for (uint256 i = 0; i < issueCount; i++) {
+        for (uint256 i = 1; i <= issueCount; i++) {
             if (issues[i].status == IssueStatus.Done && block.number - issues[i].closedBlockAt <= _blockCount) {
                 likeCount += issues[i].likeCounts[_memberAddress];
             }
@@ -196,5 +221,15 @@ contract PjDAO {
 
     function issueCount() public view returns (uint256) {
         return issueId;
+    }
+
+    // PjRole毎にtoken_uriを設定する関数
+    function setTokenURI(PjRole _role, string memory tokenURI) public onlyOwner {
+        tokenURIs[_role] = tokenURI;
+    }
+
+    // PjRole毎のtoken_uriを取得する関数
+    function getTokenURI(PjRole _role) public view returns (string memory) {
+        return tokenURIs[_role];
     }
 }
