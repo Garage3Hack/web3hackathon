@@ -16,7 +16,7 @@ const LuiDAOs: NextPage = () => {
     })
     const balanceOfResult = useMemberNftBalanceOf({
         address: process.env.NEXT_PUBLIC_MEMBERNFT_ADDR as `0x${string}`,
-        args: [account.address]
+        args: [account.address!]
     })
     const json = [
         { id: 1, name: 'Test DAO', image: 'https://ipfs.io/ipfs/QmNPHSQGmMxgnHB3hWg6DVgQoAkcjjKGXRXykGoYNrnHJD/0.png', description: 'This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.', update: '2023/3/11' },

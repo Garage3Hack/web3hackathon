@@ -80,7 +80,7 @@ const LuiDAODetails: NextPage = () => {
     }, [recentMvpAddr.data, memberRegistryContract, pjDaoContract])
 
     // Badge NFT to member
-    const [memberNftAddr, setMemberNftAddr] = useState<`0x${string}`>(account.address)
+    const [memberNftAddr, setMemberNftAddr] = useState<`0x${string}`>(account.address!)
     const debouncedMemberNftAddr = useDebounce(memberNftAddr, 500)
 
     const [memberNftRole, setMemberNftRole] = useState<number>(0)
@@ -271,7 +271,7 @@ const LuiDAODetails: NextPage = () => {
                                     <label className="form-label">Member addr</label>
                                     <input type="text" className="form-control" id="memberAddr"
                                         placeholder="Enter member address to invite this pj DAO"
-                                        value={memberAddr} onChange={(e) => {setMemberAddr(e.target.value)}} />
+                                        value={memberAddr} onChange={(e) => {setMemberAddr(e.target.value as `0x${string}`)}} />
                                 </div>
                                 <div className="mb-3">
                                     <label className="form-label">Role</label>
@@ -308,6 +308,7 @@ const LuiDAODetails: NextPage = () => {
                                 </thead>
                                 <tbody>
                                     {json3.map(doc => (
+                                        // eslint-disable-next-line react/jsx-key
                                         <tr>
                                             <th scope="row">{doc.id}</th>
                                             <td>{doc.document}</td>

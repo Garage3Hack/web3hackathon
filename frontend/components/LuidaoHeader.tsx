@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-html-link-for-pages */
 import Link from 'next/link'
 import Image from 'next/image'
 import { Web3Button, Web3NetworkSwitch } from '@web3modal/react'

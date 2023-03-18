@@ -21,7 +21,7 @@ const IssueRegistration: NextPage = () => {
 
     const {config} = usePreparePjDaoAddIssue({
         address: pjdao_addr as `0x${string}`,
-        args: [debouncedTitle, debouncedDescription, addr]
+        args: [debouncedTitle, debouncedDescription, addr as `0x${string}`]
     })
 
     const {data, write} = usePjDaoAddIssue(config)

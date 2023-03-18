@@ -13,7 +13,7 @@ const MyProfile: NextPage = () => {
     const myAddr = account.address as string
     const {config} = usePrepareMemberNftSafeMint({
         address: process.env.NEXT_PUBLIC_MEMBERNFT_ADDR as `0x${string}`,
-        args: [myAddr, 'https://ipfs.io/ipfs/QmX1ZaB4TUScdPFaZBUjfCiWPZ5B6iqTBCMecyS6G2QVTL']
+        args: [myAddr as `0x${string}`, 'https://ipfs.io/ipfs/QmX1ZaB4TUScdPFaZBUjfCiWPZ5B6iqTBCMecyS6G2QVTL']
     })
     const { data, write } = useMemberNftSafeMint(config)
 
@@ -25,18 +25,18 @@ const MyProfile: NextPage = () => {
     })
     const balanceOfResult = useMemberNftBalanceOf({
         address: process.env.NEXT_PUBLIC_MEMBERNFT_ADDR as `0x${string}`,
-        args: [myAddr]
+        args: [myAddr as `0x${string}`]
     })
     const memberNftTokenId = useMemberNftTokenOfOwnerByIndex({
         address: process.env.NEXT_PUBLIC_MEMBERNFT_ADDR as `0x${string}`,
-        args: [myAddr, 0]
+        args: [myAddr as `0x${string}`, BigNumber.from(0)]
     })
     const memberNft = useMemberNftTokenUri({
         address: process.env.NEXT_PUBLIC_MEMBERNFT_ADDR as `0x${string}`,
         args: [memberNftTokenId?.data!]
     })
 
-    const [tokenInfo, setTokenInfo] = useState(null)
+    const [tokenInfo, setTokenInfo] = useState<any | null>(null)
     const tokenURI = memberNft.data!
     useEffect(()=>{
         const fetchTokenURI = async () => {
@@ -56,7 +56,7 @@ const MyProfile: NextPage = () => {
     })
     const balanceOfBadgeResult = useBadgeNftBalanceOf({
         address: process.env.NEXT_PUBLIC_MEMBERNFT_ADDR as `0x${string}`,
-        args: [myAddr]
+        args: [myAddr as `0x${string}`]
     })
 
     useEffect( () => {
@@ -137,16 +137,16 @@ const MyProfile: NextPage = () => {
                 </div>
                 <div className="col">
                     {
-                        balanceOfResult?.data?.toNumber() > 0 ?
+                        balanceOfResult && balanceOfResult.data && balanceOfResult.data.toNumber() > 0 ?
                         <div className="card mb-4">
                             <div className="card-body">
                                 <div className="feature-icon d-inline-flex align-items-center justify-content-center bg-gradient fs-2 mb-3 p-2">
-                                    <Image alt="{dao.name}" src={tokenInfo?.image?.replace('ipfs://', 'https://ipfs.io/ipfs/')} width="128" height="128" className="rounded img-fluid" style={{ aspectRatio: 1 / 1 }} />
+                                    <Image alt="{dao.name}" src={tokenInfo!.image?.replace('ipfs://', 'https://ipfs.io/ipfs/')} width="128" height="128" className="rounded img-fluid" style={{ aspectRatio: 1 / 1 }} />
                                     {/* <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" className="bi bi-emoji-smile-fill" viewBox="0 0 16 16">
                                       <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zM7 6.5C7 7.328 6.552 8 6 8s-1-.672-1-1.5S5.448 5 6 5s1 .672 1 1.5zM4.285 9.567a.5.5 0 0 1 .683.183A3.498 3.498 0 0 0 8 11.5a3.498 3.498 0 0 0 3.032-1.75.5.5 0 1 1 .866.5A4.498 4.498 0 0 1 8 12.5a4.498 4.498 0 0 1-3.898-2.25.5.5 0 0 1 .183-.683zM10 8c-.552 0-1-.672-1-1.5S9.448 5 10 5s1 .672 1 1.5S10.552 8 10 8z"/>
                                     </svg> */}
                                 </div>
-                                <h3 className="fs-2 text-secondary">You're member of BE creation</h3>
+                                <h3 className="fs-2 text-secondary">You are member of BE creation</h3>
                             </div>
                         </div>
                         :
