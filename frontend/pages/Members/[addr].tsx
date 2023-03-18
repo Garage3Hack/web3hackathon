@@ -4,20 +4,16 @@ import Image from 'next/image';
 import { useBadgeNft, useBadgeNftBalanceOf, useMemberNft, useMemberNftBalanceOf, useMemberNftSafeMint, useMemberNftTokenOfOwnerByIndex, useMemberNftTokenUri, useMemberRegistryAddMember, usePrepareMemberNftSafeMint, usePrepareMemberRegistryAddMember } from '@/contracts/generated'
 import { useAccount, useProvider, useWaitForTransaction } from 'wagmi'
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
 import useDebounce from '@/common/useDebounce'
 import { BigNumber } from 'ethers';
 
 const MyProfile: NextPage = () => {
     const account = useAccount()
     const provider = useProvider()
-    const myAddr = account.address as string
-    const {config} = usePrepareMemberNftSafeMint({
-        address: process.env.NEXT_PUBLIC_MEMBERNFT_ADDR as `0x${string}`,
-        args: [myAddr, 'https://ipfs.io/ipfs/QmX1ZaB4TUScdPFaZBUjfCiWPZ5B6iqTBCMecyS6G2QVTL']
-    })
-    const { data, write } = useMemberNftSafeMint(config)
 
-
+    const router = useRouter();
+    const {addr} = router.query
     // get a member nft
     const memberNftContract = useMemberNft({
         address: process.env.NEXT_PUBLIC_MEMBERNFT_ADDR as `0x${string}`,
@@ -25,11 +21,11 @@ const MyProfile: NextPage = () => {
     })
     const balanceOfResult = useMemberNftBalanceOf({
         address: process.env.NEXT_PUBLIC_MEMBERNFT_ADDR as `0x${string}`,
-        args: [myAddr]
+        args: [addr]
     })
     const memberNftTokenId = useMemberNftTokenOfOwnerByIndex({
         address: process.env.NEXT_PUBLIC_MEMBERNFT_ADDR as `0x${string}`,
-        args: [myAddr, 0]
+        args: [addr, 0]
     })
     const memberNft = useMemberNftTokenUri({
         address: process.env.NEXT_PUBLIC_MEMBERNFT_ADDR as `0x${string}`,
@@ -56,7 +52,7 @@ const MyProfile: NextPage = () => {
     })
     const balanceOfBadgeResult = useBadgeNftBalanceOf({
         address: process.env.NEXT_PUBLIC_MEMBERNFT_ADDR as `0x${string}`,
-        args: [myAddr]
+        args: [addr]
     })
 
     useEffect( () => {
@@ -103,21 +99,6 @@ const MyProfile: NextPage = () => {
         console.log(listOfOptions)
         setSkills(listOfOptions)
     }
-
-    const memRegist = usePrepareMemberRegistryAddMember({
-        address: process.env.NEXT_PUBLIC_MEMBERREGISTRY_ADDR as `0x${string}` | undefined,
-        args: [debouncedUsername, debouncedIntroduction, debouncedSkills]
-    })
-
-    const addMember = useMemberRegistryAddMember(memRegist.config)
-
-    const { isLoading, isSuccess } = useWaitForTransaction({
-        hash: data?.hash,
-        onSuccess: (data) => {
-            setAlert(true)
-            setMessage('Welcome BE CREATION!!')
-        }
-      })
 
     // Alert
     const [message, setMessage] = useState('')
