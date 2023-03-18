@@ -10,8 +10,30 @@ import { useEffect, useState } from 'react';
 // 1. Set project id
 const projectId = process.env.NEXT_PUBLIC_WALLET_CONNECT_PJID
 
+export const shibuya = {
+  id: 81,
+  name: 'Shibuya Network',
+  network: 'Shibuya-network',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'shibuya',
+    symbol: 'SBY',
+  },
+  rpcUrls: {
+    default: { http: ['https://evm.shibuya.astar.network/'] },
+    public: { http: ['https://evm.shibuya.astar.network/'] },
+  },
+  blockExplorers: {
+    default: {
+      name: 'Shibuya Explorer',
+      url: 'https://shibuya.subscan.io',
+    },
+  },
+  testnet: true,
+}
+
 // 2. Configure wagmi client
-const chains = [mainnet, polygon, avalanche, arbitrum, bsc, optimism, gnosis, fantom, hardhat]
+const chains = [shibuya, hardhat]
 
 const { provider } = configureChains(chains, [w3mProvider({ projectId })])
 const wagmiClient = createClient({
