@@ -81,7 +81,8 @@ contract PjDAO {
         description = _description;
         members[_owner].role = PjRole.PRODUCTMANAGER;
         badgeNftContractAddress = _badgeNftContractAddress;
-
+        memberList.push(_owner);
+        
         tokenURIs[PjRole.NONE] = "https://ipfs.io/ipfs/QmabCLCMyLgyUkGgTN8W5Dh16Y6r2yWLB2LreRFifpnXsq";
         tokenURIs[PjRole.PRODUCTMANAGER] = "https://ipfs.io/ipfs/QmUtqt9gd2wnXagsZ4CiZui6dY1xd9GHRd5F6qEAVM3joG";
         tokenURIs[PjRole.PROJECTMANAGER] = "https://ipfs.io/ipfs/QmZqYgedLAsgc7TbHhdauHNeV8b2XhzeBmHcD46SA4c3WG";
@@ -89,6 +90,7 @@ contract PjDAO {
         tokenURIs[PjRole.DESIGNER] = "https://ipfs.io/ipfs/QmNcCYUKGgdXbMqogSsvUTkt5nLEccJFWKE9eGT1NZ1kbf";
         tokenURIs[PjRole.MARKETER] = "https://ipfs.io/ipfs/QmT2MkyoqPjMYaXKxFQyYUJp16bzQFia33oP1z1jUY3XK3";
         tokenURIs[PjRole.QAENGINEER] = "https://ipfs.io/ipfs/QmTgHSrg9aHSvdVLpjKZki2fQdErqKX8UthZci1tdNRQmn";
+
     }
 
     function getAllMembers() public view returns (address[] memory) {

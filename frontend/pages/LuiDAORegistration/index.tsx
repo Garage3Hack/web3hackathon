@@ -2,8 +2,11 @@ import useDebounce from '@/common/useDebounce'
 import { usePjDaoFactoryCreatePjDao, usePreparePjDaoFactoryCreatePjDao } from '@/contracts/generated'
 import type { NextPage } from 'next'
 import Head from 'next/head'
+import { useRouter } from 'next/router'
 import { useState } from 'react'
+import { useWaitForTransaction } from 'wagmi'
 const LuiDAORegistration: NextPage = () => {
+    const router = useRouter()
     const [daoName, setDaoName] = useState('')
     const debouncedDaoName = useDebounce(daoName, 500)
 
@@ -15,6 +18,13 @@ const LuiDAORegistration: NextPage = () => {
         args: [debouncedDaoName, debouncedDaoDescription]
     })
     const { data, isLoading, isSuccess, write } = usePjDaoFactoryCreatePjDao(config)
+
+    useWaitForTransaction({
+        hash: data?.hash,
+        onSuccess: (data) => {
+            router.push('/')
+        }
+      })
 
     return (
         <div>

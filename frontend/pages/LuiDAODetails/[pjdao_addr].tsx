@@ -1,15 +1,17 @@
 import useDebounce from '@/common/useDebounce'
-import { usePjDaoAddMember, usePjDaoGetIssueList, usePreparePjDaoAddMember } from '@/contracts/generated'
+import { useMemberRegistry, usePjDao, usePjDaoAddMember, usePjDaoGetAllMembers, usePjDaoGetIssueList, usePreparePjDaoAddMember } from '@/contracts/generated'
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useProvider } from 'wagmi'
 
 
 const LuiDAODetails: NextPage = () => {
     const router = useRouter();
+    const provider = useProvider()
     const { pjdao_addr } = router.query;
     const issues = usePjDaoGetIssueList({
         address: pjdao_addr as `0x${string}`
@@ -25,19 +27,48 @@ const LuiDAODetails: NextPage = () => {
 
     const {data, write} = usePjDaoAddMember(config)
 
-    // パスパラメータから値を取得
-    // Issueテストデータ
-    const json1 = [
-        { id: 1, issue_name: 'AAAAAAAA', responsible: 'Aikei', status: 'In Progress', link: '/IssueDetails'},
-        { id: 2, issue_name: 'BBBBBBBB', responsible: 'Koizumi', status: 'Done', link: '/IssueDetails'},
-        { id: 3, issue_name: 'CCCCCCCC', responsible: 'Someya', status: 'Done', link: '/IssueDetails' },
-    ]
-    // memberテストデータ
-    const json2 = [
-        { id: 1, name: 'Aikei', role: 'Engineer', link: '/MyProfile' },
-        { id: 2, name: 'Koizumi', role: 'Engineer', link: '/MyProfile' },
-        { id: 3, name: 'Ebara', role: 'Planner', link: '/MyProfile' },
-    ]
+
+    // member 一覧
+    const pjDaoMembers = usePjDaoGetAllMembers({
+        address: pjdao_addr as `0x${string}`
+    })
+
+    const daoMemberAddrs = pjDaoMembers.data
+
+    const memberRegistryContract = useMemberRegistry({
+        address: process.env.NEXT_PUBLIC_MEMBERREGISTRY_ADDR as `0x${string}` | undefined,
+        signerOrProvider: provider
+    })
+
+    const pjDaoContract = usePjDao({
+        address: pjdao_addr as `0x${string}`,
+        signerOrProvider: provider
+    })
+
+    const [members, setMembers] = useState<any[]>([])
+    useEffect( () => {
+        const fetchMembers = async () => {
+            console.log(daoMemberAddrs)
+            if (memberRegistryContract && pjDaoContract && daoMemberAddrs){
+                const mems = [] as any
+                for (let index = 0; index < daoMemberAddrs.length!; index++) {
+                    const memberAddr = daoMemberAddrs[index];
+                    const mem =  await memberRegistryContract.getMember(memberAddr)
+                    const mem2 =  await pjDaoContract.members(memberAddr)
+                    mems.push({
+                        name: mem![0],
+                        introduction: mem![1],
+                        skills: mem![2],
+                        role: mem2.role
+                    })
+                }
+                console.log(mems)
+                setMembers(mems)
+            }
+        }
+        fetchMembers()
+    }, [daoMemberAddrs, memberRegistryContract])
+
     // 成果物テストデータ
     const json3 = [
         { id: 1, document: 'AAAAAAAA', link: 'http://aaaa' },
@@ -86,7 +117,7 @@ const LuiDAODetails: NextPage = () => {
                                             <td>{`-`}</td>
                                             <td>{issues.data![1][index]}</td>
                                             <td>
-                                                <button type="button" className="btn btn-light"><Link href={""}><Image alt="refer" src="/icons/eye.svg" width="16" height="16" /></Link></button>
+                                                <button type="button" className="btn btn-light"><Link href={`/IssueDetails/${pjdao_addr}/${index}`}><Image alt="refer" src="/icons/eye.svg" width="16" height="16" /></Link></button>
                                                 <button type="button" className="btn btn-light"><Image alt="trash" src="/icons/trash3.svg" width="16" height="16" /></button>
                                             </td>
                                         </tr>
@@ -111,13 +142,13 @@ const LuiDAODetails: NextPage = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {json2.map(member => (
-                                        <tr>
-                                            <th scope="row">{member.id}</th>
+                                    {members.map((member, index) => (
+                                        <tr key={`mem-${index}`}>
+                                            <th scope="row">{index}</th>
                                             <td>{member.name}</td>
                                             <td>{member.role}</td>
                                             <td>
-                                            <button type="button" className="btn btn-light"><Link href={member.link}><Image alt="refer" src="/icons/eye.svg" width="16" height="16" /></Link></button>
+                                            <button type="button" className="btn btn-light"><Link href={`/`}><Image alt="refer" src="/icons/eye.svg" width="16" height="16" /></Link></button>
                                             </td>
                                         </tr>
                                     ))}
