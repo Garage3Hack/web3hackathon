@@ -1,13 +1,15 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import Image from 'next/image';
-import { useMemberNftBalanceOf, useMemberNftSafeMint, useMemberNftTokenOfOwnerByIndex, useMemberNftTokenUri, useMemberRegistryAddMember, usePrepareMemberNftSafeMint, usePrepareMemberRegistryAddMember } from '@/contracts/generated'
-import { useAccount, useWaitForTransaction } from 'wagmi'
+import { useMemberNft, useMemberNftBalanceOf, useMemberNftSafeMint, useMemberNftTokenOfOwnerByIndex, useMemberNftTokenUri, useMemberRegistryAddMember, usePrepareMemberNftSafeMint, usePrepareMemberRegistryAddMember } from '@/contracts/generated'
+import { useAccount, useProvider, useWaitForTransaction } from 'wagmi'
 import { useEffect, useState } from 'react'
 import useDebounce from '@/common/useDebounce'
+import { BigNumber } from 'ethers';
 
 const MyProfile: NextPage = () => {
     const account = useAccount()
+    const provider = useProvider()
     const myAddr = account.address as string
     const {config} = usePrepareMemberNftSafeMint({
         address: process.env.NEXT_PUBLIC_MEMBERNFT_ADDR as `0x${string}`,
@@ -17,6 +19,24 @@ const MyProfile: NextPage = () => {
 
 
     // get a member nft
+    const memberNftContract = useMemberNft({
+        address: process.env.NEXT_PUBLIC_MEMBERNFT_ADDR as `0x${string}`,
+        signerOrProvider: provider
+    })
+    const balanceOfResult = useMemberNftBalanceOf({
+        address: process.env.NEXT_PUBLIC_MEMBERNFT_ADDR as `0x${string}`,
+        args: [myAddr]
+    })
+
+    // useEffect( () => {
+    //     const fetchNftMeta = async () => {
+    //         console.log('balance', balanceOfResult?.data?.toNumber())
+    //         const memberNftTokenId = memberNftContract?.tokenOfOwnerByIndex(account.address, BigNumber.from(0))
+    //         console.log('tokenid', memberNftTokenId)
+    //     }
+    //     fetchNftMeta()
+    // }, [account.address, balanceOfResult?.data, memberNftContract])
+
     const memberNftTokenId = useMemberNftTokenOfOwnerByIndex({
         address: process.env.NEXT_PUBLIC_MEMBERNFT_ADDR as `0x${string}`,
         args: [myAddr, 0]
@@ -94,7 +114,7 @@ const MyProfile: NextPage = () => {
                 </div>
                 <div className="col">
                     {
-                        memberNft.data ?
+                        balanceOfResult?.data?.toNumber() > 0 ?
                         <div className="card mb-4">
                             <div className="card-body">
                                 <div className="feature-icon d-inline-flex align-items-center justify-content-center text-bg-success bg-gradient fs-2 mb-3 p-2 rounded">
