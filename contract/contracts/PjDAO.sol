@@ -159,8 +159,6 @@ contract PjDAO {
     }
 
     function addIssue(string memory _title, string memory _description, address _creator) public onlyMember returns (uint256) {
-        issueId++;
-        
         issues[issueId].id = issueId;
         issues[issueId].title = _title;
         issues[issueId].description = _description;
@@ -169,6 +167,8 @@ contract PjDAO {
         issues[issueId].createdBlockAt = block.number;
         issues[issueId].closedBlockAt = 0;
         issues[issueId].likeCounts[_creator] = 0;
+
+        issueId++;
 
         emit IssueAdded(issueId, _title, _description, _creator, IssueStatus.ToDo, block.number);
 
@@ -199,11 +199,12 @@ contract PjDAO {
     }
 
     function getIssueList() public view returns (string[] memory, string[] memory) {
+        require(issueId != 0 , "Issue does not exist");
         uint256 issueCount = issueId;
         string[] memory titles = new string[](issueCount);
         string[] memory statuses = new string[](issueCount);
 
-        for (uint256 i = 1; i <= issueCount; i++) {
+        for (uint256 i = 0; i < issueCount; i++) {
             titles[i] = issues[i].title;
             statuses[i] = statusToString(issues[i].status);
         }
@@ -237,7 +238,7 @@ contract PjDAO {
         uint256 issueCount = issueId;
         uint256 likeCount = 0;
 
-        for (uint256 i = 1; i <= issueCount; i++) {
+        for (uint256 i = 0; i < issueCount; i++) {
             if (issues[i].status == IssueStatus.Done && block.number - issues[i].closedBlockAt <= RECENT_ISSUE_PERIOD) {
                 likeCount += issues[i].likeCounts[_memberAddress];
             }
