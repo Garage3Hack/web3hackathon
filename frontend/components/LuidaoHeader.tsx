@@ -28,7 +28,7 @@ const LuidaoHeader = () => {
                                 <a className="nav-link" href="/Members">Members</a>
                             </li>
                             <li className="nav-item">
-                                <a className="nav-link" href="/Voting">Voting</a>
+                                <a className="nav-link" href="/Management">Management</a>
                             </li>
                         </ul>
                         <ul className="navbar-nav d-flex flex-row me-1">
