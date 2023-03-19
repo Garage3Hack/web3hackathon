@@ -51,13 +51,13 @@ const MyProfile: NextPage = () => {
         signerOrProvider: provider
     })
     const balanceOfBadgeResult = useBadgeNftBalanceOf({
-        address: process.env.NEXT_PUBLIC_MEMBERNFT_ADDR as `0x${string}`,
+        address: process.env.NEXT_PUBLIC_BADGENFT_ADDR as `0x${string}`,
         args: [addr as `0x${string}`]
     })
 
     useEffect( () => {
         const fetchBadgeNftMeta = async () => {
-            if (balanceOfBadgeResult.data && account.address && badgeNftContract){
+            if (balanceOfBadgeResult.data && addr && badgeNftContract){
                 console.log('badge balance', balanceOfBadgeResult.data?.toNumber())
                 const balanceOfBadge = balanceOfBadgeResult.data?.toNumber()
                 const _badges = []
@@ -65,7 +65,7 @@ const MyProfile: NextPage = () => {
                     console.log('badge', i)
                     let badgeNftTokenId 
                     try {
-                        badgeNftTokenId = await badgeNftContract?.tokenOfOwnerByIndex(account.address!, BigNumber.from(i))
+                        badgeNftTokenId = await badgeNftContract?.tokenOfOwnerByIndex(addr as `0x${string}`, BigNumber.from(i))
                     } catch (error) {
                         console.log(error)
                         break

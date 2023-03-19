@@ -84,8 +84,8 @@ contract PjDAO {
         owner = _owner;
         name = _name;
         description = _description;
-        members[_owner].role = PjRole.PRODUCTMANAGER;
         badgeNftContractAddress = _badgeNftContractAddress;
+        members[_owner] = Member(PjRole.PRODUCTMANAGER, ActivityInfo(block.number));
         memberList.push(_owner);
         pjImageUri = _pjImageUri;
         

@@ -3,16 +3,16 @@ pragma solidity ^0.8.18;
 
 import "./PjDAO.sol";
 import "./MemberNFT.sol";
-import "./TimelockController.sol";
-import "./PjGovernor.sol";
+// import "./TimelockController.sol";
+// import "./PjGovernor.sol";
 
 contract PjDAOFactory {
 
     struct PjDAOInfo {
         address pjDAO;
         address creator;
-        address timeLockController;
-        address pjGovernor;
+        // address timeLockController;
+        // address pjGovernor;
         string name;
         string description;
         string pjImageUri;
@@ -50,16 +50,16 @@ contract PjDAOFactory {
             "Must own NFT to create PjDAO"
         );
 
-        address[] memory owners = new address[](1);
-        owners[0] = msg.sender;
-        TimelockController newTimelockController = new TimelockController(
-            1, // sec
-            owners,
-            owners,
-            msg.sender
-        );
+        // address[] memory owners = new address[](1);
+        // owners[0] = msg.sender;
+        // TimelockController newTimelockController = new TimelockController(
+        //     1, // sec
+        //     owners,
+        //     owners,
+        //     msg.sender
+        // );
 
-        PjGovernor newPjGovernor = new PjGovernor(IVotes(memberNftContractAddress), TimelockController(newTimelockController));
+        // PjGovernor newPjGovernor = new PjGovernor(IVotes(memberNftContractAddress), TimelockController(newTimelockController));
 
         string memory pjImageUri = getRandomPjImageUri();
         PjDAO newPjDAO = new PjDAO(msg.sender, name, description, badgeNftContractAddress, pjImageUri);
@@ -68,8 +68,8 @@ contract PjDAOFactory {
             PjDAOInfo({
                 pjDAO: address(newPjDAO),
                 creator: msg.sender,
-                timeLockController: address(newTimelockController),
-                pjGovernor: address(newPjGovernor),
+                // timeLockController: address(newTimelockController),
+                // pjGovernor: address(newPjGovernor),
                 name: name,
                 description: description,
                 pjImageUri: pjImageUri
