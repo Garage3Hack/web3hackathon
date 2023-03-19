@@ -1,5 +1,5 @@
 import useDebounce from '@/common/useDebounce'
-import { useMemberRegistry, usePjDao, usePjDaoAddMember, usePjDaoGetAllMembers, usePjDaoGetIssueList, usePreparePjDaoAddMember } from '@/contracts/generated'
+import { useMemberRegistry, usePjDao, usePjDaoAddMember, usePjDaoGetAllMembers, usePjDaoGetIssueList, usePreparePjDaoAddMember, useCoreGovernorProposals } from '@/contracts/generated'
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
@@ -15,6 +15,11 @@ const LuiDAODetails: NextPage = () => {
     const { pjdao_addr } = router.query;
     const issues = usePjDaoGetIssueList({
         address: pjdao_addr as `0x${string}`
+    })
+
+    // proposal一覧(全ての一覧が取れてしまうが、何でフィルタリングする？) 
+    const proposals = useCoreGovernorProposals({
+        address: process.env.NEXT_PUBLIC_COREGOVERNOR_ADDR as `0x${string}` | undefined
     })
 
     const [memberAddr, setMemberAddr] = useState<`0x${string}`>('0x0')
@@ -68,22 +73,6 @@ const LuiDAODetails: NextPage = () => {
         }
         fetchMembers()
     }, [daoMemberAddrs, memberRegistryContract])
-
-    // 成果物テストデータ
-    const json3 = [
-        { id: 1, document: 'AAAAAAAA', link: 'http://aaaa' },
-        { id: 2, document: 'BBBBBBBB', link: 'http://aaaa' },
-        { id: 3, document: 'CCCCCCCC', link: 'http://aaaa' },
-    ]
-    // 成果物追加
-    const Add = () => {
-        alert("Add!");
-    }
-
-    // 提出
-    const HandIn = () => {
-        alert("HandIn!");
-    }
 
     return (
         <div>
@@ -172,32 +161,27 @@ const LuiDAODetails: NextPage = () => {
                 </div>
                 <div className="row" style={{ padding: "1.5rem" }}>
                     <div className="card text-dark">
-                        <div className="card-header">Deliverables</div>
+                        <div className="card-header">Proposals</div>
                         <div className="card-body">
                             <table className="table">
                                 <thead>
                                     <tr>
                                         <th scope="col">#</th>
-                                        <th scope="col">Document Name</th>
-                                        <th scope="col">Link</th>
-                                        <th scope="col">Actions</th>
+                                        <th scope="col">Description</th>
+                                        <th scope="col">Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {json3.map(doc => (
-                                        <tr>
-                                            <th scope="row">{doc.id}</th>
-                                            <td>{doc.document}</td>
-                                            <td><Link href={doc.link}>{doc.link}</Link></td>
-                                            <td>
-                                                <button type="button" className="btn btn-light"><Image alt="trash" src="/icons/trash3.svg" width="16" height="16" /></button>
-                                            </td>
+                                { proposals.data ? proposals.data[0].map((proposal, index) => (
+                                        <tr key={`proposal-${index}`}>
+                                            <th scope="row">{index}</th>
+                                            <td>{proposal.data![0][index]}</td>
+                                            <td>{proposal.data![1][index]}</td>
                                         </tr>
-                                    ))}
+                                    )) : <></> }
                                 </tbody>
                             </table>
-                            <button className="btn btn-primary" type="button" onClick={Add}>Add</button>
-                            <button className="btn btn-primary" type="button" onClick={HandIn}>Hand in</button>
+                            <button className="btn btn-primary" type="button"><Link href={`/ProposalRegistration/${pjdao_addr}`}>Hand in</Link></button>
                         </div>
                     </div>
                 </div>

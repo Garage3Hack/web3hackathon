@@ -39,13 +39,13 @@ async function main() {
 
     console.log("AdminTimelockController contract deployed to:", adminTimelockController.address);
 
-    // const CoreGovernor = await ethers.getContractFactory("CoreGovernor");
-    // const coreGovernor = await CoreGovernor.deploy(
-    //     ethers.getCon(administerNFT.address),
-    //     adminTimelockController
-    // );
+    const CoreGovernor = await ethers.getContractFactory("CoreGovernor");
+    const coreGovernor = await CoreGovernor.deploy(
+        administerNFT.address,
+        adminTimelockController.address
+    );
 
-    // console.log("AdminTimelockController contract deployed to:", adminTimelockController.address);
+    console.log("CoreGovernor contract deployed to:", coreGovernor.address);
 
 }
 
