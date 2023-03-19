@@ -10,6 +10,7 @@ async function main() {
     const badgeNFTAddress = "0xB8130Dfef96d4C923656eE31571CC03C8359598b";
     const pjDaoFactoryAddress = "0x7303404Fb0577E30C9efB1df4EF984dCc5951D29";
     const adminTimelockControllerAddress = "0xe93cc4681C6AFa4d42b025Cd1284d183f7dE051b";
+    const coreGovernorAddress = "0x469126121dE44b8FDb545717f72338056c7291F4";
 
     // const MemberRegistry = await ethers.getContractFactory("MemberRegistry");
     // const memberRegistry = await MemberRegistry.deploy();
