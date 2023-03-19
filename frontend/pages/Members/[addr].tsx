@@ -4,20 +4,16 @@ import Image from 'next/image';
 import { useBadgeNft, useBadgeNftBalanceOf, useMemberNft, useMemberNftBalanceOf, useMemberNftSafeMint, useMemberNftTokenOfOwnerByIndex, useMemberNftTokenUri, useMemberRegistryAddMember, usePrepareMemberNftSafeMint, usePrepareMemberRegistryAddMember } from '@/contracts/generated'
 import { useAccount, useProvider, useWaitForTransaction } from 'wagmi'
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
 import useDebounce from '@/common/useDebounce'
 import { BigNumber } from 'ethers';
 
 const MyProfile: NextPage = () => {
     const account = useAccount()
     const provider = useProvider()
-    const myAddr = account.address as string
-    const {config} = usePrepareMemberNftSafeMint({
-        address: process.env.NEXT_PUBLIC_MEMBERNFT_ADDR as `0x${string}`,
-        args: [myAddr as `0x${string}`, 'https://ipfs.io/ipfs/QmX1ZaB4TUScdPFaZBUjfCiWPZ5B6iqTBCMecyS6G2QVTL']
-    })
-    const { data, write } = useMemberNftSafeMint(config)
 
-
+    const router = useRouter();
+    const {addr} = router.query
     // get a member nft
     const memberNftContract = useMemberNft({
         address: process.env.NEXT_PUBLIC_MEMBERNFT_ADDR as `0x${string}`,
@@ -25,11 +21,11 @@ const MyProfile: NextPage = () => {
     })
     const balanceOfResult = useMemberNftBalanceOf({
         address: process.env.NEXT_PUBLIC_MEMBERNFT_ADDR as `0x${string}`,
-        args: [myAddr as `0x${string}`]
+        args: [addr! as `0x${string}`]
     })
     const memberNftTokenId = useMemberNftTokenOfOwnerByIndex({
         address: process.env.NEXT_PUBLIC_MEMBERNFT_ADDR as `0x${string}`,
-        args: [myAddr as `0x${string}`, BigNumber.from(0)]
+        args: [addr! as `0x${string}`, BigNumber.from(0)]
     })
     const memberNft = useMemberNftTokenUri({
         address: process.env.NEXT_PUBLIC_MEMBERNFT_ADDR as `0x${string}`,
@@ -56,7 +52,7 @@ const MyProfile: NextPage = () => {
     })
     const balanceOfBadgeResult = useBadgeNftBalanceOf({
         address: process.env.NEXT_PUBLIC_MEMBERNFT_ADDR as `0x${string}`,
-        args: [myAddr as `0x${string}`]
+        args: [addr as `0x${string}`]
     })
 
     useEffect( () => {
@@ -81,14 +77,6 @@ const MyProfile: NextPage = () => {
         fetchBadgeNftMeta()
     }, [account.address, badgeNftContract, balanceOfBadgeResult.data])
 
-    // Registration
-    const beAMember = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
-        console.log("be a member", write)
-        write?.()
-        addMember.write?.()
-    }
-
     const [username, setUsername] = useState('')
     const debouncedUsername = useDebounce(username, 500)
 
@@ -103,21 +91,6 @@ const MyProfile: NextPage = () => {
         console.log(listOfOptions)
         setSkills(listOfOptions)
     }
-
-    const memRegist = usePrepareMemberRegistryAddMember({
-        address: process.env.NEXT_PUBLIC_MEMBERREGISTRY_ADDR as `0x${string}` | undefined,
-        args: [debouncedUsername, debouncedIntroduction, debouncedSkills]
-    })
-
-    const addMember = useMemberRegistryAddMember(memRegist.config)
-
-    const { isLoading, isSuccess } = useWaitForTransaction({
-        hash: data?.hash,
-        onSuccess: (data) => {
-            setAlert(true)
-            setMessage('Welcome BE CREATION!!')
-        }
-      })
 
     // Alert
     const [message, setMessage] = useState('')
@@ -151,35 +124,6 @@ const MyProfile: NextPage = () => {
                         </div>
                         :
                         <div className="card mb-4">
-                            <div className="card-header text-primary fw-bold">Registration</div>
-                            <div className="card-body">
-                                <form onSubmit={beAMember}>
-                                    <div className="mb-2">
-                                        <label className="small mb-1 text-secondary">Name</label>
-                                        <input className="form-control" id="inputUsername" type="text" placeholder="Enter your name"
-                                            value={username}
-                                            onChange={(e) => setUsername(e.target.value)} />
-                                    </div>
-                                    <div className="mb-2">
-                                        <label className="form-label small mb-1 text-secondary">Introduction</label>
-                                        <textarea className="form-control" id="inputBio"
-                                            placeholder="Enter your biography" rows={3}
-                                            value={introduction}
-                                            onChange={(e) => setIntroduction(e.target.value)} ></textarea>
-                                    </div>
-                                    <div className="mb-5">
-                                        <label className="form-label small mb-1 text-secondary">Skills (You can select multiple options)</label>
-                                        <select className="form-select" multiple aria-label="Default select example multiple"
-                                            onChange={handleMultipleSelect}>
-                                            <option selected>Engineering</option>
-                                            <option>Planning</option>
-                                            <option>Design</option>
-                                            <option>DataScience</option>
-                                        </select>
-                                    </div>
-                                    <button className="btn btn-primary" type="submit" >Be a member</button>
-                                </form>
-                            </div>
                         </div>
                     }
                 </div>

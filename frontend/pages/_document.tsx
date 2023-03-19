@@ -6,11 +6,11 @@ export default function Document() {
     <Html lang="ja">
       <Head />
       <body>
-        <container>
+        {/* <container> */}
           <LuidaoHeader />
           <Main />
           <NextScript />
-        </container>
+        {/* </container> */}
       </body>
     </Html>
   )

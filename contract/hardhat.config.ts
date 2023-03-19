@@ -1,6 +1,8 @@
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
-import "dotenv/config";
+import * as dotenv from 'dotenv';
+dotenv.config()
+
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -30,6 +32,7 @@ const config: HardhatUserConfig = {
       accounts: [process.env.PRIVATE_KEY],
       allowUnlimitedContractSize: true
     }
+
   },
 };
 
