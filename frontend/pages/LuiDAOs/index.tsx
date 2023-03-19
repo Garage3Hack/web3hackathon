@@ -42,7 +42,6 @@ const LuiDAOs: NextPage = () => {
                         This page creates and manages LuiDAO. It displays LuiDAO information in card format. Click on the title of each card for more information.
                     </p>
                 </div>
-                <p>{data?.length}</p>
                 <div className="row row-cols-1 row-cols-md-3 g-4">
                     {data?.map((dao, index) => (
                         <div key={index} className="col">
@@ -53,7 +52,7 @@ const LuiDAOs: NextPage = () => {
                                     <p className="card-text">{dao.description}</p>
                                 </div>
                                 <div className="card-footer">
-                                    <small className="text-muted">Last updated {dao.timeLockController}</small>
+                                    <small className="text-muted">creator {dao.creator}</small>
                                 </div>
                             </div>
                         </div>
