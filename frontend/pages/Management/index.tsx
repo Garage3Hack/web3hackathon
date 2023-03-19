@@ -1,12 +1,8 @@
 import useDebounce from "@/common/useDebounce";
 import {
-  useMemberRegistry,
-  usePjDao,
-  usePjDaoAddMember,
-  usePjDaoGetAllMembers,
-  usePjDaoGetIssueList,
-  usePreparePjDaoAddMember,
-  useCoreGovernorProposals,
+  useCoreGovernorGetProposalIdsAndDescriptions,
+  coreGovernorABI,
+  useCoreGovernorState,
 } from "@/contracts/generated";
 import type { NextPage } from "next";
 import Head from "next/head";
@@ -14,17 +10,60 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { useAccount, useProvider } from "wagmi";
+import { useAccount, useProvider, useContract } from "wagmi";
+import { BigNumber } from "ethers";
 
 const Management: NextPage = () => {
-  const router = useRouter();
   const provider = useProvider();
-
-  const { proposals, isError, isLoading } = useCoreGovernorProposals({
-    address: process.env.NEXT_PUBLIC_COREGOVERNOR_ADDR as
-      | `0x${string}`
-      | undefined,
+  const { data } = useCoreGovernorGetProposalIdsAndDescriptions({
+    address: process.env.NEXT_PUBLIC_COREGOVERNOR_ADDR as `0x${string}`,
   });
+
+  const [ proposals, setProposals ] = useState<string[]>([]);
+  const [ descriptions, setDescriptions ] = useState<string[]>([]);
+  const [ states, setStates ] = useState<any[]>([]);
+
+  console.log(data![0]);
+  console.log(data![1]);
+  //setProposals(data![0]);
+  //setDescriptions(data![1]);
+
+  const CoreGovernorContract = useContract({
+    address: process.env.NEXT_PUBLIC_COREGOVERNOR_ADDR as `0x${string}`,
+    abi: coreGovernorABI,
+    signerOrProvider: provider,
+  });
+
+  useEffect(() => {
+    const fetchState = async () => {
+      const stat = [];
+      for (let i = 0; i < data![0].length; i++) {
+        const state = await CoreGovernorContract?.state(
+          BigNumber.from(data![0][i])
+        );
+        console.log(state);
+        stat.push(state);
+        setStates(stat);
+      }
+    };
+    fetchState()
+    console.log("3");
+  }, [data])
+
+  /*useEffect( () => {
+      const fetchProposals = async () => {
+          if (CoreGovernorContract){
+              const { proposal, description } = useCoreGovernorGetProposalIdsAndDescriptions({
+                address: process.env.NEXT_PUBLIC_COREGOVERNOR_ADDR as `0x${string}`
+              });
+              console.log(proposal);
+              console.log(description);
+              setProposals(proposal);
+              setDescriptions(description);
+          }
+      }
+      fetchProposals()
+  }, [proposals, descriptions])*/
 
   return (
     <div>
@@ -43,30 +82,10 @@ const Management: NextPage = () => {
               </tr>
             </thead>
             <tbody>
-              {proposals.data ? (
-                proposals.data[0].map((proposal, index) => (
-                  <tr key={`proposal-${index}`}>
-                    <th scope="row">{index}</th>
-                    <td>{proposal.data![0][index]}</td>
-                    <td>{proposal.data![1][index]}</td>
-                    <td>{proposal.data![2][index]}</td>
-                    <td>
-                      <button type="button" className="btn btn-light">
-                        <Link href={`/ManagementVoting/${proposal.data![0][index]}`}>
-                        <Image
-                          alt="refer"
-                          src="/icons/eye.svg"
-                          width="16"
-                          height="16"
-                        />
-                        </Link>
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <></>
-              )}
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
             </tbody>
           </table>
         </div>
