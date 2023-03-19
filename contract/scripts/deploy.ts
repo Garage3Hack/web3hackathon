@@ -4,20 +4,12 @@ async function main() {
 
     const [owner] = await ethers.getSigners();
 
-    // Deployed Shibuya Network Old memo
-    // const administerNFTAddress = "0x4aF1949172429D15AFf9Aa97D7321bd30e81cC2d";
-    // const memberNFTAddress = "0xC844337B7B2C453c7e5EA4696CefF40939173Bb9";
-    // const badgeNFTAddress = "0xB8130Dfef96d4C923656eE31571CC03C8359598b";
-    // const pjDaoFactoryAddress = "0x7303404Fb0577E30C9efB1df4EF984dCc5951D29";
-    // const adminTimelockControllerAddress = "0xe93cc4681C6AFa4d42b025Cd1284d183f7dE051b";
-    // const coreGovernorAddress = "0x469126121dE44b8FDb545717f72338056c7291F4";
-
     // Deployed Shibuya Network 2023/3/19 hackathon
     // const memberRegistry = "0xf73b3dB71E5E804AE46AAf6CB00938E9607b5339";
     // const administerNFTAddress = "0x9bc966EFCEBCA3f2B8747e4873B582a058eAEdED";
     // const memberNFTAddress = "0x1996F5864714CD0f0a3aC7ca5DACB5Bf57352bB1";
     // const badgeNFTAddress = "0xCF8d9FdbD068B879dFB0A3DB6e4cf7d58621b1B2";
-    // const pjDaoFactoryAddress = "0x1BFbec34d29648B52afb31E786e895D2A2B4789A";
+    // const pjDaoFactoryAddress = "0x194E020a580c1A327fCc131886051c7254EC774B";
     // const adminTimelockControllerAddress = "0x82d94F6AD894fE6A13D40425C1f70d241A584305";
     // const coreGovernorAddress = "0x1226bb22e57821E6490CDB07978e40F0F1F689a1";
 
@@ -63,7 +55,6 @@ async function main() {
     );
 
     console.log("CoreGovernor contract deployed to:", coreGovernor.address);
-
 }
 
 main()
