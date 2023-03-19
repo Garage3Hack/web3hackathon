@@ -27,7 +27,7 @@ const ManagementVoting: NextPage = () => {
 
   const Proposals = useCoreGovernorProposals({
     address: process.env.NEXT_PUBLIC_COREGOVERNOR_ADDR as `0x${string}`,
-    args: [ proposal_id ]
+    args: [ BigNumber.from(proposal_id as string) ]
   })
 
   const members = [

@@ -43,7 +43,7 @@ const ProposalRegistration: NextPage = () => {
     args: [
       [process.env.NEXT_PUBLIC_ADMINISTERNFT_ADDR as `0x${string}`],
       [BigNumber.from(0)],
-      [calldata],
+      [calldata] as `0x${string}`[],
       proposalDescription,
     ],
   });
@@ -64,13 +64,13 @@ const ProposalRegistration: NextPage = () => {
     onSuccess: async (data) => {
 
       const descriptionHash = generateHash(proposalDescription);
-      const proposalIdJson = await CoreGovernorContract.hashProposal(
+      const proposalIdJson = await CoreGovernorContract!.hashProposal(
         [process.env.NEXT_PUBLIC_ADMINISTERNFT_ADDR as `0x${string}`],
         [BigNumber.from(0)],
-        [calldata],
-        descriptionHash);
+        [calldata] as `0x${string}`[],
+        descriptionHash as `0x${string}`);
       const tx = await CoreGovernorContract?.addProposalIdAndDescription(proposalIdJson._hex, proposalDescription);
-      await tx.wait();
+      await tx!.wait();
       router.push("/Management");
     }
   });

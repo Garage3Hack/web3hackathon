@@ -1,9 +1,5 @@
 import useDebounce from '@/common/useDebounce'
-<<<<<<< HEAD
-import { useMemberRegistry, usePjDao, usePjDaoAddMember, usePjDaoGetAllMembers, usePjDaoGetIssueList, usePreparePjDaoAddMember, useCoreGovernorProposals } from '@/contracts/generated'
-=======
-import { useMemberRegistry, usePjDao, usePjDaoAddMember, usePjDaoGetAllMembers, usePjDaoGetIssueList, usePjDaoGetRecentMvpAddress, usePjDaoMintMvpNft, usePjDaoMintNft, usePreparePjDaoAddMember, usePreparePjDaoMintMvpNft, usePreparePjDaoMintNft } from '@/contracts/generated'
->>>>>>> main
+import { useMemberRegistry, usePjDao, usePjDaoAddMember, usePjDaoGetAllMembers, usePjDaoGetIssueList, usePjDaoGetRecentMvpAddress, usePjDaoMintMvpNft, usePjDaoMintNft, usePreparePjDaoAddMember, usePreparePjDaoMintMvpNft, usePreparePjDaoMintNft, useCoreGovernorGetProposalIdsAndDescriptions } from '@/contracts/generated'
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
@@ -102,7 +98,7 @@ const LuiDAODetails: NextPage = () => {
     })
 
     // proposal一覧(全ての一覧が取れてしまうが、何でフィルタリングする？) 
-    const proposals = useCoreGovernorProposals({
+    const proposals = useCoreGovernorGetProposalIdsAndDescriptions({
         address: process.env.NEXT_PUBLIC_COREGOVERNOR_ADDR as `0x${string}` | undefined
     })
 
@@ -299,23 +295,11 @@ const LuiDAODetails: NextPage = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-<<<<<<< HEAD
                                 { proposals.data ? proposals.data[0].map((proposal, index) => (
                                         <tr key={`proposal-${index}`}>
                                             <th scope="row">{index}</th>
-                                            <td>{proposal.data![0][index]}</td>
-                                            <td>{proposal.data![1][index]}</td>
-=======
-                                    {json3.map(doc => (
-                                        // eslint-disable-next-line react/jsx-key
-                                        <tr>
-                                            <th scope="row">{doc.id}</th>
-                                            <td>{doc.document}</td>
-                                            <td><Link href={doc.link}>{doc.link}</Link></td>
-                                            <td>
-                                                <button type="button" className="btn btn-light"><Image alt="trash" src="/icons/trash3.svg" width="16" height="16" /></button>
-                                            </td>
->>>>>>> main
+                                            <td>{proposals.data![0][index]}</td>
+                                            <td>{proposals.data![1][index]}</td>
                                         </tr>
                                     )) : <></> }
                                 </tbody>
