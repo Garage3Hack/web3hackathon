@@ -19,6 +19,7 @@ import { useAccount, useProvider } from "wagmi";
 const Management: NextPage = () => {
   const router = useRouter();
   const provider = useProvider();
+
   const { proposals, isError, isLoading } = useCoreGovernorProposals({
     address: process.env.NEXT_PUBLIC_COREGOVERNOR_ADDR as
       | `0x${string}`

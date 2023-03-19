@@ -9,6 +9,8 @@ import "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFractio
 import "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.sol";
 
 contract CoreGovernor is Governor, GovernorSettings, GovernorCompatibilityBravo, GovernorVotes, GovernorVotesQuorumFraction, GovernorTimelockControl {
+    string[] proposalIdHistory;
+
     constructor(IVotes _token, TimelockController _timelock)
         Governor("CoreGovernor")
         GovernorSettings(1 /* 1 block */, 7200 /* 1 day */, 0)
@@ -61,6 +63,14 @@ contract CoreGovernor is Governor, GovernorSettings, GovernorCompatibilityBravo,
         returns (uint256)
     {
         return super.propose(targets, values, calldatas, description);
+    }
+
+    function addProposalId(string memory proposalId) public {
+        proposalIdHistory.push(proposalId);
+    }
+
+    function getProposalIds() public view returns (string[] memory) {
+        return proposalIdHistory;
     }
 
     function proposalThreshold()
