@@ -7,26 +7,21 @@ import {
 import type { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
-import Image from "next/image";
+import Image from 'next/image'
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { useAccount, useProvider, useContract } from "wagmi";
+import { useProvider, useContract } from "wagmi";
 import { BigNumber } from "ethers";
 
 const Management: NextPage = () => {
   const provider = useProvider();
-  const { data } = useCoreGovernorGetProposalIdsAndDescriptions({
+  const { data, isError, isLoading } = useCoreGovernorGetProposalIdsAndDescriptions({
     address: process.env.NEXT_PUBLIC_COREGOVERNOR_ADDR as `0x${string}`,
   });
 
-  const [ proposals, setProposals ] = useState<string[]>([]);
-  const [ descriptions, setDescriptions ] = useState<string[]>([]);
-  const [ states, setStates ] = useState<any[]>([]);
-
-  console.log(data![0]);
-  console.log(data![1]);
-  //setProposals(data![0]);
-  //setDescriptions(data![1]);
+  const [proposals, setProposals] = useState<any[]>([]);
+  const [descriptions, setDescriptions] = useState<any[]>([]);
+  const [states, setStates] = useState<any[]>([]);
 
   const CoreGovernorContract = useContract({
     address: process.env.NEXT_PUBLIC_COREGOVERNOR_ADDR as `0x${string}`,
@@ -36,34 +31,28 @@ const Management: NextPage = () => {
 
   useEffect(() => {
     const fetchState = async () => {
+      const pid = [];
+      const des = [];
       const stat = [];
       for (let i = 0; i < data![0].length; i++) {
         const state = await CoreGovernorContract?.state(
           BigNumber.from(data![0][i])
         );
         console.log(state);
+        console.log(data![0][i])
+        pid.push(data![0][i]);
+        des.push(data![1][i]);
         stat.push(state);
-        setStates(stat);
       }
+      setProposals(pid);
+      setDescriptions(des);
+      setStates(stat);
     };
-    fetchState()
+    fetchState();
     console.log("3");
-  }, [data])
+  }, [data]);
 
-  /*useEffect( () => {
-      const fetchProposals = async () => {
-          if (CoreGovernorContract){
-              const { proposal, description } = useCoreGovernorGetProposalIdsAndDescriptions({
-                address: process.env.NEXT_PUBLIC_COREGOVERNOR_ADDR as `0x${string}`
-              });
-              console.log(proposal);
-              console.log(description);
-              setProposals(proposal);
-              setDescriptions(description);
-          }
-      }
-      fetchProposals()
-  }, [proposals, descriptions])*/
+  console.log(JSON.stringify(proposals));
 
   return (
     <div>
@@ -82,10 +71,25 @@ const Management: NextPage = () => {
               </tr>
             </thead>
             <tbody>
-              <td></td>
-              <td></td>
-              <td></td>
-              <td></td>
+              {proposals.map((propodalId, index) => (
+                <tr key={`proposal-${index}`}>
+                  <td>{index}</td>
+                  <td>{descriptions[index]}</td>
+                  <td>{states[index]}</td>
+                  <td>
+                    <button type="button" className="btn btn-light">
+                      <Link href={`/ManagementVoting/${descriptions[index]}/${propodalId}`}>
+                        <Image
+                          alt="refer"
+                          src="/icons/eye.svg"
+                          width="16"
+                          height="16"
+                        />
+                      </Link>
+                    </button>
+                  </td>
+                </tr>
+                ))}
             </tbody>
           </table>
         </div>

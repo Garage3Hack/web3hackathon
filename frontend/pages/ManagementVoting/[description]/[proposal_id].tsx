@@ -6,6 +6,7 @@ import {
   usePjDaoGetAllMembers,
   usePjDaoGetIssueList,
   usePreparePjDaoAddMember,
+  useCoreGovernorProposals,
 } from "@/contracts/generated";
 import type { NextPage } from "next";
 import Head from "next/head";
@@ -14,13 +15,20 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useAccount, useProvider } from "wagmi";
+import { BigNumber } from "ethers";
 
 const ManagementVoting: NextPage = () => {
   const account = useAccount();
   const router = useRouter();
   const provider = useProvider();
 
-  //const { pjdao_addr, proposal_id } = router.query;
+  const { description, proposal_id } = router.query;
+
+
+  const Proposals = useCoreGovernorProposals({
+    address: process.env.NEXT_PUBLIC_COREGOVERNOR_ADDR as `0x${string}`,
+    args: [ proposal_id ]
+  })
 
   const members = [
     { id: 1, name: "Aikei", introduction: "Engineer", link: "/MyProfile" },
@@ -61,12 +69,7 @@ const ManagementVoting: NextPage = () => {
           <div className="card-body">
             <h5 className="card-title">提案内容</h5>
             <p className="card-text">
-              このフェーズでGenerative
-              AIの市場動向調査を行い、以下のようなコンセプトでプロダクトを考案しました。
-              <li>クライアントの要望からStable Diffusionを用いて画像生成</li>
-              <li>
-                LLMを用いてクライアント要望をクラスタリングし其々の対策を考案する
-              </li>
+              {description}
             </p>
             <button type="button" className="btn btn-primary">Pros</button>
             <button type="button" className="btn btn-primary">Cons</button>
