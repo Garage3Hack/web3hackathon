@@ -55,7 +55,7 @@ const MyProfile: NextPage = () => {
         signerOrProvider: provider
     })
     const balanceOfBadgeResult = useBadgeNftBalanceOf({
-        address: process.env.NEXT_PUBLIC_MEMBERNFT_ADDR as `0x${string}`,
+        address: process.env.NEXT_PUBLIC_BADGENFT_ADDR as `0x${string}`,
         args: [myAddr as `0x${string}`]
     })
 
