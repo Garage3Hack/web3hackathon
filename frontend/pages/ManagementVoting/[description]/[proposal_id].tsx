@@ -67,7 +67,7 @@ const ManagementVoting: NextPage = () => {
         <div className="card h-100 text-dark">
         <div className="card-header">GenerativeDAO</div>
           <div className="card-body">
-            <h5 className="card-title">提案内容</h5>
+            <h5 className="card-title">Proposal Details</h5>
             <p className="card-text">
               {description}
             </p>
@@ -76,7 +76,7 @@ const ManagementVoting: NextPage = () => {
           </div>
           <ul className="list-group list-group-flush">
             <li className="list-group-item">
-            <h5 className="card-title">投票結果</h5>
+            <h5 className="card-title">Voting Results</h5>
             <div>Pros: <strong>12</strong>  Cons: <strong>5</strong><button type="button" className="btn btn-light ml-auto">Execute</button></div>
             </li>
           </ul>

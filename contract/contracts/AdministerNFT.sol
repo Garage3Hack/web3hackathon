@@ -24,6 +24,16 @@ contract AdministerNFT is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burn
         _setTokenURI(tokenId, uri);
     }
 
+    // Batchで複数のNFTを同時にMintする。同じUriを利用する。
+    function safeBatchMint(address[] memory targets, string memory uri) public {
+        for (uint i = 0; i < targets.length; i++) {
+            uint256 tokenId = _tokenIdCounter.current();
+            _tokenIdCounter.increment();
+            _safeMint(targets[i], tokenId);
+            _setTokenURI(tokenId, uri);
+        }
+    }
+    
     // The following functions are overrides required by Solidity.
 
     function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize)

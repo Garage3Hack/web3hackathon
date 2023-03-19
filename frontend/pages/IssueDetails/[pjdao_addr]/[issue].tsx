@@ -25,6 +25,8 @@ const IssueDetails: NextPage = () => {
             return "Done";
         } else if (_status == 3) {
             return "Pending";
+        } else if (_status == 4) {
+            return "Rated";
         } else {
             return 'Invalid'
         }
@@ -38,6 +40,8 @@ const IssueDetails: NextPage = () => {
             return 2;
         } else if (_status == "Pending") {
             return 3;
+        } else if (_status == "Rated") {
+            return 4;
         } else {
             return -1
         }

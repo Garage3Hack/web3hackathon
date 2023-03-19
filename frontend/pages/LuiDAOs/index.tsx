@@ -16,7 +16,7 @@ const LuiDAOs: NextPage = () => {
     })
     const balanceOfResult = useMemberNftBalanceOf({
         address: process.env.NEXT_PUBLIC_MEMBERNFT_ADDR as `0x${string}`,
-        args: [account.address]
+        args: [account.address!]
     })
     const json = [
         { id: 1, name: 'Test DAO', image: 'https://ipfs.io/ipfs/QmNPHSQGmMxgnHB3hWg6DVgQoAkcjjKGXRXykGoYNrnHJD/0.png', description: 'This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.', update: '2023/3/11' },
@@ -42,18 +42,17 @@ const LuiDAOs: NextPage = () => {
                         This page creates and manages LuiDAO. It displays LuiDAO information in card format. Click on the title of each card for more information.
                     </p>
                 </div>
-                <p>{data?.length}</p>
                 <div className="row row-cols-1 row-cols-md-3 g-4">
                     {data?.map((dao, index) => (
                         <div key={index} className="col">
                             <div className="card h-100 text-dark">
-                                <Image alt="{dao.name}" src={json[0].image} width="300" height="180" className="card-img-top img-fluid" style={{ aspectRatio: 4 / 3 }} />
+                                <Image alt="{dao.name}" src={dao.pjImageUri} width="300" height="180" className="card-img-top img-fluid" style={{ aspectRatio: 4 / 3 }} />
                                 <div className="card-body">
                                     <h5 className="card-title"><Link href={`/LuiDAODetails/${dao.pjDAO}`}>{dao.name}</Link></h5>
                                     <p className="card-text">{dao.description}</p>
                                 </div>
                                 <div className="card-footer">
-                                    <small className="text-muted">Last updated {dao.timeLockController}</small>
+                                    <small className="text-muted">creator {dao.creator}</small>
                                 </div>
                             </div>
                         </div>

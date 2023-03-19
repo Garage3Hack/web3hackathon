@@ -6,15 +6,9 @@ import { useMemberRegistry, useMemberRegistryAddMember, useMemberRegistryGetAllM
 import { useEffect, useState } from 'react'
 import { useProvider } from 'wagmi'
 
-interface Member {name: string, introduction: string, skills: readonly string[]};
+interface Member {addr: string, name: string, introduction: string, skills: readonly string[]};
 const Members: NextPage = () => {
     const provider = useProvider()
-    const json = [
-        { id: 1, name: 'Aikei', role: 'Engineer', link: '/MyProfile' },
-        { id: 2, name: 'Koizumi', role: 'Engineer', link: '/MyProfile' },
-        { id: 3, name: 'Ebara', role: 'Planner', link: '/MyProfile' },
-    ]
-
     const { data, isError, isLoading } = useMemberRegistryGetAllMembers({
         address: process.env.NEXT_PUBLIC_MEMBERREGISTRY_ADDR as `0x${string}` | undefined
     })
@@ -33,6 +27,7 @@ const Members: NextPage = () => {
                     const memberAddr = data![index];
                     const mem = await memberRegistryContract.getMember(memberAddr)
                     mems.push({
+                        addr: memberAddr,
                         name: mem![0],
                         introduction: mem![1],
                         skills: mem![2],
@@ -63,6 +58,7 @@ const Members: NextPage = () => {
                                 <thead>
                                     <tr>
                                         <th scope="col">#</th>
+                                        <th scope="col">Addr</th>
                                         <th scope="col">Name</th>
                                         <th scope="col">Introductions</th>
                                         <th scope="col">Actions</th>
@@ -72,11 +68,12 @@ const Members: NextPage = () => {
                                     {members.map((member, index) => (
                                         <tr key={`mem-${index}`}>
                                             <th scope="row">{index}</th>
+                                            <td>{member.addr}</td>
                                             <td>{member.name}</td>
                                             <td>{member.introduction}</td>
                                             <td>
-                                                <button type="button" className="btn btn-light"><Link href={`/`}><Image alt="refer" src="/icons/eye.svg" width="16" height="16"/></Link></button>
-                                                <button type="button" className="btn btn-light"><Image alt="trash" src="/icons/trash3.svg" width="16" height="16"/></button>
+                                                <button type="button" className="btn btn-light"><Link href={`/Members/${member.addr}`}><Image alt="refer" src="/icons/eye.svg" width="16" height="16"/></Link></button>
+                                                <button type="button" className="btn btn-light disabled"><Image alt="trash" src="/icons/trash3.svg" width="16" height="16"/></button>
                                             </td>
                                         </tr>
                                     ))}

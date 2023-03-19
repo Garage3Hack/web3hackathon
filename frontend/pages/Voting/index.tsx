@@ -19,11 +19,13 @@ const Voting: NextPage = () => {
                     </p>
                 </div>
                 {json.map(vote => (
+                                    // eslint-disable-next-line react/jsx-key
                     <div className="row" style={{ padding: "1.5rem" }}>
                         <div className="card text-dark">
                             <div className="card-header">{vote.vote}</div>
                             <div className="card-body">
                                 {vote.options.map( op => (
+                                    // eslint-disable-next-line react/jsx-key
                                     <button type="button" className="btn btn-light">{op}</button>
                                 ))}
                             </div>
