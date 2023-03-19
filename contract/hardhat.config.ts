@@ -1,8 +1,8 @@
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
 import * as dotenv from 'dotenv';
-
 dotenv.config()
+
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -24,13 +24,15 @@ const config: HardhatUserConfig = {
     localhost: {
       allowUnlimitedContractSize: true,
       gas: 500000,
-    },
-    // shibuya: {
-    //   // url:"https://evm.shibuya.astar.network",
-    //   url:"https://shibuya.public.blastapi.io",
-    //   chainId:81,
-    //   accounts:[process.env.PRIVATE_KEY!],
-    // }
+    }, 
+    shibuya: {
+      // url:"https://evm.shibuya.astar.network",
+      url:"https://shibuya.public.blastapi.io",
+      chainId:81,
+      accounts: [process.env.PRIVATE_KEY],
+      allowUnlimitedContractSize: true
+    }
+
   },
 };
 
