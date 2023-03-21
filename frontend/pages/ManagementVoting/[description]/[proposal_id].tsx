@@ -6,7 +6,10 @@ import {
   usePjDaoGetAllMembers,
   usePjDaoGetIssueList,
   usePreparePjDaoAddMember,
+  useCoreGovernorGetVotes,
   useCoreGovernorProposals,
+  useCoreGovernorCastVote,
+  usePrepareCoreGovernorCastVote,
 } from "@/contracts/generated";
 import type { NextPage } from "next";
 import Head from "next/head";
@@ -14,16 +17,35 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { useAccount, useProvider } from "wagmi";
+import { useAccount, useProvider, useSigner } from "wagmi";
 import { BigNumber } from "ethers";
 
 const ManagementVoting: NextPage = () => {
   const account = useAccount();
   const router = useRouter();
   const provider = useProvider();
+  const signer = useSigner();
 
   const { description, proposal_id } = router.query;
 
+  const Pros = usePrepareCoreGovernorCastVote({
+      address: process.env.NEXT_PUBLIC_COREGOVERNOR_ADDR as `0x${string}`,
+      args: [ BigNumber.from(proposal_id as string), Number(1) ]
+  })
+
+  const Cons = usePrepareCoreGovernorCastVote({
+    address: process.env.NEXT_PUBLIC_COREGOVERNOR_ADDR as `0x${string}`,
+    args: [ BigNumber.from(proposal_id as string), Number(0) ]
+  })
+
+  const VotePros = useCoreGovernorCastVote(Pros.config)
+  const VoteCons = useCoreGovernorCastVote(Cons.config)
+
+  const result = useCoreGovernorGetVotes({
+    address: process.env.NEXT_PUBLIC_COREGOVERNOR_ADDR as `0x${string}`,
+  })
+
+  console.log("result=" + JSON.stringify(result))
 
   const Proposals = useCoreGovernorProposals({
     address: process.env.NEXT_PUBLIC_COREGOVERNOR_ADDR as `0x${string}`,
@@ -71,8 +93,8 @@ const ManagementVoting: NextPage = () => {
             <p className="card-text">
               {description}
             </p>
-            <button type="button" className="btn btn-primary">Pros</button>
-            <button type="button" className="btn btn-primary">Cons</button>
+            <button type="button" className="btn btn-primary" onClick={() => VotePros.write?.()}>Pros</button>
+            <button type="button" className="btn btn-primary" onClick={() => VoteCons.write?.()}>Cons</button>
           </div>
           <ul className="list-group list-group-flush">
             <li className="list-group-item">

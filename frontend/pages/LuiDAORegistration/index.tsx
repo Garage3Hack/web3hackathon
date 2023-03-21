@@ -31,7 +31,7 @@ const LuiDAORegistration: NextPage = () => {
             <Head><title>LuiDAO Registration</title></Head>
             <div className="row mb-3" style={{ padding: "1.5rem" }}>
                 <div>
-                    <h2>LuidDAO Registration</h2>
+                    <h2>LuiDAO Registration</h2>
                     <p>
                         Register LuiDAO on this page.
                     </p>

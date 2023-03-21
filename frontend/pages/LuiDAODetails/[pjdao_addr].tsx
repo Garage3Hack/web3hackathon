@@ -298,8 +298,8 @@ const LuiDAODetails: NextPage = () => {
                                 { proposals.data ? proposals.data[0].map((proposal, index) => (
                                         <tr key={`proposal-${index}`}>
                                             <th scope="row">{index}</th>
-                                            <td>{proposals.data![0][index]}</td>
                                             <td>{proposals.data![1][index]}</td>
+                                            <td>{proposals.data![2][index]}</td>
                                         </tr>
                                     )) : <></> }
                                 </tbody>
