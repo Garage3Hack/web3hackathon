@@ -78,14 +78,14 @@ const Management: NextPage = () => {
               </tr>
             </thead>
             <tbody>
-              {proposals.map((propodalId, index) => (
+              {data!.map((proposal, index) => (
                 <tr key={`proposal-${index}`}>
                   <td>{index}</td>
-                  <td>{descriptions[index]}</td>
+                  <td>{proposal[1]}</td>
                   <td>{states[index]}</td>
                   <td>
                     <button type="button" className="btn btn-light">
-                      <Link href={`/ManagementVoting/${descriptions[index]}/${propodalId}`}>
+                      <Link href={`/ManagementVoting/${proposal[1]}/${proposal[0]}`}>
                         <Image
                           alt="refer"
                           src="/icons/eye.svg"
