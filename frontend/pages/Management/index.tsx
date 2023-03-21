@@ -78,7 +78,7 @@ const Management: NextPage = () => {
               </tr>
             </thead>
             <tbody>
-              {data!.map((proposal, index) => (
+              {data!.map((proposal:any, index) => (
                 <tr key={`proposal-${index}`}>
                   <td>{index}</td>
                   <td>{proposal[1]}</td>
