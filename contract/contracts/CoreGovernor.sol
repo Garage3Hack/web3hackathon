@@ -12,6 +12,18 @@ contract CoreGovernor is Governor, GovernorSettings, GovernorCompatibilityBravo,
     string[] proposalIdHistory;
     string[] proposalDescriptionHistory;
 
+    // 2023/3/21ここから
+    struct ProposalInfo {
+        uint256 proposalId;
+        string proposalDescription;
+        address proposalDaoAddress;
+        uint256 proposedBlockAt;
+    }
+
+    ProposalInfo[] public proposalInfoHistory;
+
+    // ここまで
+
     constructor(IVotes _token, TimelockController _timelock)
         Governor("CoreGovernor")
         GovernorSettings(1 /* 1 block */, 7200 /* 1 day */, 0)
@@ -66,11 +78,48 @@ contract CoreGovernor is Governor, GovernorSettings, GovernorCompatibilityBravo,
         return super.propose(targets, values, calldatas, description);
     }
 
+    // 2023/3/21
+    // 削除予定
+    // function propose(address[] memory targets, uint256[] memory values, bytes[] memory calldatas, string memory description)
+    //     public
+    //     override(Governor, GovernorCompatibilityBravo, IGovernor)
+    //     returns (uint256)
+    // {
+    //     uint256 proposalId = super.propose(targets, values, calldatas, description);
+    //     proposalIdHistory.push(Strings.toString(proposalId));
+    //     proposalDescriptionHistory.push(description);
+    //     return proposalId;
+    // }
+
+    // 2023/3/21
+    function proposeWithDaoInfo(address[] memory targets, uint256[] memory values, bytes[] memory calldatas, string memory description, address daoAddress)
+        public
+        returns (uint256)
+    {
+        uint256 proposalId = propose(targets, values, calldatas, description);
+
+        ProposalInfo memory newProposal = ProposalInfo({
+            proposalId: proposalId,
+            proposalDescription: description,
+            proposalDaoAddress: daoAddress,
+            proposedBlockAt: block.number
+        });
+        proposalInfoHistory.push(newProposal);
+
+        return proposalId;
+    }
+
+    function getProposalInfoHistory() public view returns (ProposalInfo[] memory) {
+        return proposalInfoHistory;
+    }
+
+    // 削除予定
     function addProposalIdAndDescription(string memory proposalId, string memory description) public {
         proposalIdHistory.push(proposalId);
         proposalDescriptionHistory.push(description);
     }
 
+    // 削除予定
     function getProposalIdsAndDescriptions() public view returns (string[] memory, string[] memory) {
         return (proposalIdHistory, proposalDescriptionHistory);
     }

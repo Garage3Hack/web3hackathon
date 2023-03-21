@@ -1,6 +1,7 @@
 import useDebounce from "@/common/useDebounce";
 import {
   useCoreGovernorGetProposalIdsAndDescriptions,
+  useCoreGovernorGetProposalInfoHistory,
   coreGovernorABI,
   useCoreGovernorState,
 } from "@/contracts/generated";
@@ -15,9 +16,15 @@ import { BigNumber } from "ethers";
 
 const Management: NextPage = () => {
   const provider = useProvider();
-  const { data, isError, isLoading } = useCoreGovernorGetProposalIdsAndDescriptions({
+  // const { data, isError, isLoading } = useCoreGovernorGetProposalIdsAndDescriptions({
+  //   address: process.env.NEXT_PUBLIC_COREGOVERNOR_ADDR as `0x${string}`,
+  // });
+
+  const { data, isError, isLoading } = useCoreGovernorGetProposalInfoHistory({
     address: process.env.NEXT_PUBLIC_COREGOVERNOR_ADDR as `0x${string}`,
   });
+
+  console.log(data);
 
   const [proposals, setProposals] = useState<any[]>([]);
   const [descriptions, setDescriptions] = useState<any[]>([]);
@@ -29,28 +36,28 @@ const Management: NextPage = () => {
     signerOrProvider: provider,
   });
 
-  useEffect(() => {
-    const fetchState = async () => {
-      const pid = [];
-      const des = [];
-      const stat = [];
-      for (let i = 0; i < data![0].length; i++) {
-        const state = await CoreGovernorContract?.state(
-          BigNumber.from(data![0][i])
-        );
-        console.log(state);
-        console.log(data![0][i])
-        pid.push(data![0][i]);
-        des.push(data![1][i]);
-        stat.push(state);
-      }
-      setProposals(pid);
-      setDescriptions(des);
-      setStates(stat);
-    };
-    fetchState();
-    console.log("3");
-  }, [data]);
+  // useEffect(() => {
+  //   const fetchState = async () => {
+  //     const pid = [];
+  //     const des = [];
+  //     const stat = [];
+  //     for (let i = 0; i < data![0].length; i++) {
+  //       const state = await CoreGovernorContract?.state(
+  //         BigNumber.from(data![0][i])
+  //       );
+  //       console.log(state);
+  //       console.log(data![0][i])
+  //       pid.push(data![0][i]);
+  //       des.push(data![1][i]);
+  //       stat.push(state);
+  //     }
+  //     setProposals(pid);
+  //     setDescriptions(des);
+  //     setStates(stat);
+  //   };
+  //   fetchState();
+  //   console.log("3");
+  // }, [data]);
 
   console.log(JSON.stringify(proposals));
 

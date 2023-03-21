@@ -1,7 +1,10 @@
 import useDebounce from "@/common/useDebounce";
 import {
+  usePjDaoGetAllMembers,
   useCoreGovernorPropose,
   usePrepareCoreGovernorPropose,
+  usePrepareCoreGovernorProposeWithDaoInfo,
+  useCoreGovernorProposeWithDaoInfo,
   useAdministerNft,
   coreGovernorABI,
 } from "@/contracts/generated";
@@ -27,50 +30,108 @@ const ProposalRegistration: NextPage = () => {
     signerOrProvider: provider,
   });
 
-  const calldata =
+    // member 一覧
+    const pjDaoMembers = usePjDaoGetAllMembers({
+        address: pjdao_addr as `0x${string}`
+    })
+
+    const daoMemberAddrs = pjDaoMembers.data
+
+  // const calldata =
+  //   administerNftContract == undefined
+  //     ? ""
+  //     : administerNftContract.interface.encodeFunctionData("safeMint", [
+  //         "0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199",
+  //         "https://ipfs.io/ipfs/QmTbA5N1j1f22NZBHTAuZXWpYTuD3z7fcQ7ed35T3FiCQ9",
+  //       ]);
+
+    console.log(daoMemberAddrs);
+
+    const calldata =
     administerNftContract == undefined
       ? ""
-      : administerNftContract.interface.encodeFunctionData("safeMint", [
-          "0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199",
+      : administerNftContract.interface.encodeFunctionData("safeBatchMint", [
+          daoMemberAddrs,
           "https://ipfs.io/ipfs/QmTbA5N1j1f22NZBHTAuZXWpYTuD3z7fcQ7ed35T3FiCQ9",
         ]);
 
   const [proposalDescription, setProposalDescription] = useState("");
   const debouncedProposalDescription = useDebounce(proposalDescription, 500);
 
-  const { config } = usePrepareCoreGovernorPropose({
+  // const { config } = usePrepareCoreGovernorPropose({
+  //   address: process.env.NEXT_PUBLIC_COREGOVERNOR_ADDR as `0x${string}`,
+  //   args: [
+  //     [process.env.NEXT_PUBLIC_ADMINISTERNFT_ADDR as `0x${string}`],
+  //     [BigNumber.from(0)],
+  //     [calldata] as `0x${string}`[],
+  //     proposalDescription,
+  //   ],
+  // });
+
+  // const { data, write } = useCoreGovernorPropose(config);
+
+  // const generateHash = (str: string) => {
+  //   return ethers.utils.keccak256(ethers.utils.toUtf8Bytes(str));
+  // };
+
+  // const CoreGovernorContract = useContract({
+  //   address: process.env.NEXT_PUBLIC_COREGOVERNOR_ADDR as `0x${string}`,
+  //   abi: coreGovernorABI,
+  //   signerOrProvider: signer});
+
+  // useWaitForTransaction({
+  //   hash: data?.hash,
+  //   onSuccess: async (data) => {
+
+  //     const descriptionHash = generateHash(proposalDescription);
+  //     const proposalIdJson = await CoreGovernorContract!.hashProposal(
+  //       [process.env.NEXT_PUBLIC_ADMINISTERNFT_ADDR as `0x${string}`],
+  //       [BigNumber.from(0)],
+  //       [calldata] as `0x${string}`[],
+  //       descriptionHash as `0x${string}`);
+  //     const tx = await CoreGovernorContract?.addProposalIdAndDescription(proposalIdJson._hex, proposalDescription);
+  //     await tx!.wait();
+  //     router.push("/Management");
+  //   }
+  // });
+
+  // 2023/3/21
+  const { config } = usePrepareCoreGovernorProposeWithDaoInfo({
     address: process.env.NEXT_PUBLIC_COREGOVERNOR_ADDR as `0x${string}`,
     args: [
       [process.env.NEXT_PUBLIC_ADMINISTERNFT_ADDR as `0x${string}`],
       [BigNumber.from(0)],
       [calldata] as `0x${string}`[],
       proposalDescription,
+      pjdao_addr as `0x${string}`
     ],
   });
 
-  const { data, write } = useCoreGovernorPropose(config);
+  const { data, write } = useCoreGovernorProposeWithDaoInfo(config);
 
-  const generateHash = (str: string) => {
-    return ethers.utils.keccak256(ethers.utils.toUtf8Bytes(str));
-  };
+  // const generateHash = (str: string) => {
+  //   return ethers.utils.keccak256(ethers.utils.toUtf8Bytes(str));
+  // };
 
-  const CoreGovernorContract = useContract({
-    address: process.env.NEXT_PUBLIC_COREGOVERNOR_ADDR as `0x${string}`,
-    abi: coreGovernorABI,
-    signerOrProvider: signer});
+  // const CoreGovernorContract = useContract({
+  //   address: process.env.NEXT_PUBLIC_COREGOVERNOR_ADDR as `0x${string}`,
+  //   abi: coreGovernorABI,
+  //   signerOrProvider: signer});
 
   useWaitForTransaction({
     hash: data?.hash,
     onSuccess: async (data) => {
 
-      const descriptionHash = generateHash(proposalDescription);
-      const proposalIdJson = await CoreGovernorContract!.hashProposal(
-        [process.env.NEXT_PUBLIC_ADMINISTERNFT_ADDR as `0x${string}`],
-        [BigNumber.from(0)],
-        [calldata] as `0x${string}`[],
-        descriptionHash as `0x${string}`);
-      const tx = await CoreGovernorContract?.addProposalIdAndDescription(proposalIdJson._hex, proposalDescription);
-      await tx!.wait();
+      console.log("ProposalRegistration useWaitForTransaction " , data);
+
+      // const descriptionHash = generateHash(proposalDescription);
+      // const proposalIdJson = await CoreGovernorContract!.hashProposal(
+      //   [process.env.NEXT_PUBLIC_ADMINISTERNFT_ADDR as `0x${string}`],
+      //   [BigNumber.from(0)],
+      //   [calldata] as `0x${string}`[],
+      //   descriptionHash as `0x${string}`);
+      // const tx = await CoreGovernorContract?.addProposalIdAndDescription(proposalIdJson._hex, proposalDescription);
+      // await tx!.wait();
       router.push("/Management");
     }
   });
