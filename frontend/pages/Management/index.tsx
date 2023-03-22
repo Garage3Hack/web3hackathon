@@ -26,9 +26,32 @@ const Management: NextPage = () => {
 
   console.log(data);
 
-  const [proposals, setProposals] = useState<any[]>([]);
+  const [proposalIds, setProposalIds] = useState<any[]>([]);
   const [descriptions, setDescriptions] = useState<any[]>([]);
   const [states, setStates] = useState<any[]>([]);
+
+  const state2str = (state: number): string => {
+    switch (state) {
+      case 0:
+        return 'Pending';
+      case 1:
+        return 'Active';
+      case 2:
+        return 'Canceled';
+      case 3:
+        return 'Defeated';
+      case 4:
+        return 'Succeeded';
+      case 5:
+        return 'Queued';
+      case 6:
+        return 'Expired';
+      case 7:
+        return 'Executed';
+      default:
+        return 'Unknown';
+    }
+  };
 
   const CoreGovernorContract = useContract({
     address: process.env.NEXT_PUBLIC_COREGOVERNOR_ADDR as `0x${string}`,
@@ -36,30 +59,33 @@ const Management: NextPage = () => {
     signerOrProvider: provider,
   });
 
-  // useEffect(() => {
-  //   const fetchState = async () => {
-  //     const pid = [];
-  //     const des = [];
-  //     const stat = [];
-  //     for (let i = 0; i < data![0].length; i++) {
-  //       const state = await CoreGovernorContract?.state(
-  //         BigNumber.from(data![0][i])
-  //       );
-  //       console.log(state);
-  //       console.log(data![0][i])
-  //       pid.push(data![0][i]);
-  //       des.push(data![1][i]);
-  //       stat.push(state);
-  //     }
-  //     setProposals(pid);
-  //     setDescriptions(des);
-  //     setStates(stat);
-  //   };
-  //   fetchState();
-  //   console.log("3");
-  // }, [data]);
+  useEffect(() => {
+    const fetchState = async () => {
+      const pid = [];
+      const des = [];
+      const stat = [];
 
-  console.log(JSON.stringify(proposals));
+      for (let i = 0; i < data!.length; i++) {
+        const state = await CoreGovernorContract?.state(
+          BigNumber.from(data![i][0])
+        );
+
+        console.log(JSON.stringify(data![i][0]["_hex"]));
+
+        // console.log(data![i][0]));
+        // pid.push(data![i][0]);
+        pid.push(BigNumber.from(data![i][0]).toHexString());
+        des.push(data![i][1]);
+        stat.push(state);
+      }
+      setProposalIds(pid);
+      setDescriptions(des);
+      setStates(stat);
+    };
+    fetchState();
+    console.log("3");
+  }, [data]);
+
 
   return (
     <div>
@@ -67,38 +93,43 @@ const Management: NextPage = () => {
         <title>Management:Proposal List</title>
       </Head>
       <div className="row mb-3" style={{ padding: "1.5rem" }}>
-        <div className="accordion" id="voting-list">
-          <table className="table">
-            <thead>
-              <tr>
-                <th scope="col">#</th>
-                <th scope="col">description</th>
-                <th scope="col">status</th>
-                <th scope="col">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data!.map((proposal:any, index) => (
-                <tr key={`proposal-${index}`}>
-                  <td>{index}</td>
-                  <td>{proposal[1]}</td>
-                  <td>{states[index]}</td>
-                  <td>
-                    <button type="button" className="btn btn-light">
-                      <Link href={`/ManagementVoting/${proposal[1]}/${proposal[0]}`}>
-                        <Image
-                          alt="refer"
-                          src="/icons/eye.svg"
-                          width="16"
-                          height="16"
-                        />
-                      </Link>
-                    </button>
-                  </td>
+        <div className="card text-dark">
+          <div className="card-body">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th>pid</th>
+                  <th>description</th>
+                  <th>status</th>
+                  <th>Action</th>
                 </tr>
+              </thead>
+              <tbody>
+                {proposalIds!.map((proposalId: any, index) => (
+                  <tr key={`proposal-${index}`}>
+                    <td>{index}</td>
+                    <td>{proposalId}</td>
+                    <td>{descriptions[index]}</td>
+                    <td>{state2str(states[index])}</td>
+                    <td>
+                      <button type="button" className="btn btn-light">
+                        {/* <Link href={`/ManagementVoting/${descriptions[index]}/${proposalIds[index]}`}> */}
+                        <Link href={`/ManagementVoting/${proposalIds[index]}`}>
+                          <Image
+                            alt="refer"
+                            src="/icons/eye.svg"
+                            width="16"
+                            height="16"
+                          />
+                        </Link>
+                      </button>
+                    </td>
+                  </tr>
                 ))}
-            </tbody>
-          </table>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

@@ -27,7 +27,7 @@ const ManagementVoting: NextPage = () => {
   const provider = useProvider();
   const signer = useSigner();
 
-  const { description, proposal_id } = router.query;
+  const { proposal_id } = router.query;
   console.log(proposal_id);
 
   const Pros = usePrepareCoreGovernorCastVote({
@@ -95,7 +95,8 @@ const ManagementVoting: NextPage = () => {
           <div className="card-body">
             <h5 className="card-title">Proposal Details</h5>
             <p className="card-text">
-              {description}
+              {/* {description} */}
+              test
             </p>
             <button type="button" className="btn btn-primary" onClick={() => VotePros.write?.()}>Pros</button>
             <button type="button" className="btn btn-primary" onClick={() => VoteCons.write?.()}>Cons</button>
