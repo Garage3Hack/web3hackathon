@@ -37,7 +37,7 @@ const LuiDAOs: NextPage = () => {
             <Head><title>LuiDAOs</title></Head>
             <div className="row mb-3" style={{ padding: "1.5rem" }}>
                 <div>
-                    <h2>LuidDAOs</h2>
+                    <h2>LuiDAOs</h2>
                     <p>
                         This page creates and manages LuiDAO. It displays LuiDAO information in card format. Click on the title of each card for more information.
                     </p>
