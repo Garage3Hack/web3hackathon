@@ -67,15 +67,15 @@ const Management: NextPage = () => {
 
       for (let i = 0; i < data!.length; i++) {
         const state = await CoreGovernorContract?.state(
-          BigNumber.from(data![i][0])
+          BigNumber.from(data![i]["proposalId"])
         );
 
-        console.log(JSON.stringify(data![i][0]["_hex"]));
+        console.log(JSON.stringify(data![i]["proposalId"]["_hex"]));
 
         // console.log(data![i][0]));
         // pid.push(data![i][0]);
-        pid.push(BigNumber.from(data![i][0]).toHexString());
-        des.push(data![i][1]);
+        pid.push(BigNumber.from(data![i]["proposalId"]).toHexString());
+        des.push(data![i]["proposalDescription"]);
         stat.push(state);
       }
       setProposalIds(pid);

@@ -11,6 +11,7 @@ import {
   useCoreGovernorProposals,
   useCoreGovernorCastVote,
   usePrepareCoreGovernorCastVote,
+  useCoreGovernorGetProposalInfoHistory,
 } from "@/contracts/generated";
 import type { NextPage } from "next";
 import Head from "next/head";
@@ -28,53 +29,62 @@ const ManagementVoting: NextPage = () => {
   const signer = useSigner();
 
   const { proposal_id } = router.query;
-  console.log(proposal_id);
+  // console.log(proposal_id);
 
-  const Pros = usePrepareCoreGovernorCastVote({
+  const [proposalId, setProposalId] = useState<any>("");
+  const [proposalDescription, setProposalDescription] = useState<any>("");
+  const [voteForCount, setVoteForCount] = useState<any>(0);
+  const [voteAgainstCount, setVoteAgainstCount] = useState<any>(0);
+
+  const proposal = useCoreGovernorProposals({
+    address: process.env.NEXT_PUBLIC_COREGOVERNOR_ADDR as `0x${string}`,
+    args: [ BigNumber.from(proposal_id)]
+  });
+
+  const prosalInfoHistory = useCoreGovernorGetProposalInfoHistory({
+    address: process.env.NEXT_PUBLIC_COREGOVERNOR_ADDR as `0x${string}`,
+  });
+
+  const voteForConfig = usePrepareCoreGovernorCastVote({
       address: process.env.NEXT_PUBLIC_COREGOVERNOR_ADDR as `0x${string}`,
       args: [ BigNumber.from(proposal_id), Number(1) ]
   })
 
-  const Cons = usePrepareCoreGovernorCastVote({
+  const voteAgainstConfig = usePrepareCoreGovernorCastVote({
     address: process.env.NEXT_PUBLIC_COREGOVERNOR_ADDR as `0x${string}`,
     args: [ BigNumber.from(proposal_id), Number(0) ]
   })
 
-  const VotePros = useCoreGovernorCastVote(Pros.config)
-  const VoteCons = useCoreGovernorCastVote(Cons.config)
+  const voteFor = useCoreGovernorCastVote(voteForConfig.config)
+  const voteAgainst = useCoreGovernorCastVote(voteAgainstConfig.config)
 
-  /*const result = useCoreGovernorGetVotes({
-    address: process.env.NEXT_PUBLIC_COREGOVERNOR_ADDR as `0x${string}`,
-  })
+  // console.log(proposal);
 
-  console.log("result=" + JSON.stringify(result))*/
+  useEffect( () => {
+    const fetchProposalData = async () => {
+        if (proposal.data ){
+            // console.log('proposal data', proposal.data);
+            setProposalId(proposal.data.id.toHexString());
+            setVoteForCount(proposal.data.forVotes.toNumber());
+            setVoteAgainstCount(proposal.data.againstVotes.toNumber());
+        }
+    }
+    fetchProposalData()
+  }, [proposal])
 
-  const Proposals = useCoreGovernorProposals({
-    address: process.env.NEXT_PUBLIC_COREGOVERNOR_ADDR as `0x${string}`,
-    args: [ BigNumber.from(proposal_id) ]
-  })
+  useEffect( () => { 
+    const fetchProsalInfoHistory = async () => {
+        if (prosalInfoHistory.data ){
+            // console.log('proposal info data', prosalInfoHistory.data![0].proposalId.toHexString());
 
-  console.log("result=" + JSON.stringify(Proposals))
-
-  const members = [
-    { id: 1, name: "Aikei", introduction: "Engineer", link: "/MyProfile" },
-    { id: 2, name: "Koizumi", introduction: "Engineer", link: "/MyProfile" },
-    { id: 3, name: "Ebara", introduction: "Planner", link: "/MyProfile" },
-  ];
-  const daos = {
-    id: 1,
-    name: "Test DAO",
-    image:
-      "https://ipfs.io/ipfs/QmNPHSQGmMxgnHB3hWg6DVgQoAkcjjKGXRXykGoYNrnHJD/0.png",
-    description:
-      "This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.",
-    update: "2023/3/11",
-    deliverables: [
-      { id: 1, document: "AAAAAAAA", link: "http://aaaa" },
-      { id: 2, document: "BBBBBBBB", link: "http://aaaa" },
-      { id: 3, document: "CCCCCCCC", link: "http://aaaa" },
-    ],
-  };
+            const filteredProposal = prosalInfoHistory.data?.filter(item => item.proposalId.toHexString() === proposal_id);
+            setProposalDescription(filteredProposal![0].proposalDescription);
+            // console.log(proposalDescription);
+        }
+    }
+    fetchProsalInfoHistory()
+  }, [prosalInfoHistory])
+  
   return (
     <div>
       <Head>
@@ -91,20 +101,19 @@ const ManagementVoting: NextPage = () => {
       </div>
       <div className="row row-cols-1 g-4" style={{ padding: "1.5rem" }}>
         <div className="card h-100 text-dark">
-        <div className="card-header">GenerativeDAO</div>
+        <div className="card-header">Proposal ID {proposal_id}</div>
           <div className="card-body">
             <h5 className="card-title">Proposal Details</h5>
             <p className="card-text">
-              {/* {description} */}
-              test
+              {proposalDescription}
             </p>
-            <button type="button" className="btn btn-primary" onClick={() => VotePros.write?.()}>Pros</button>
-            <button type="button" className="btn btn-primary" onClick={() => VoteCons.write?.()}>Cons</button>
+            <button type="button" className="btn btn-primary" onClick={() => voteFor.write?.()}>賛成</button>
+            <button type="button" className="btn btn-primary" onClick={() => voteAgainst.write?.()}>反対</button>
           </div>
           <ul className="list-group list-group-flush">
             <li className="list-group-item">
             <h5 className="card-title">Voting Results</h5>
-            <div>Pros: <strong>12</strong>  Cons: <strong>5</strong><button type="button" className="btn btn-light ml-auto">Execute</button></div>
+            <div>賛成: <strong>{voteForCount}</strong>  反対: <strong>{voteAgainstCount}</strong><button type="button" className="btn btn-light ml-auto">Execute</button></div>
             </li>
           </ul>
           <div className="card-footer">
@@ -112,44 +121,6 @@ const ManagementVoting: NextPage = () => {
           </div>
         </div>
       </div>      
-      <div className="row row-cols-1 g-4" style={{ padding: "1.5rem" }}>
-        <div className="card text-dark">
-        <div className="card-header">Members</div>
-          <div className="card-body">
-            <table className="table">
-              <thead>
-                <tr>
-                  <th scope="col">#</th>
-                  <th scope="col">Name</th>
-                  <th scope="col">Introductions</th>
-                  <th scope="col">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {members.map((member, index) => (
-                  <tr key={`mem-${index}`}>
-                    <th scope="row">{index}</th>
-                    <td>{member.name}</td>
-                    <td>{member.introduction}</td>
-                    <td>
-                      <button type="button" className="btn btn-light">
-                        <Link href={`/`}>
-                          <Image
-                            alt="refer"
-                            src="/icons/eye.svg"
-                            width="16"
-                            height="16"
-                          />
-                        </Link>
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };

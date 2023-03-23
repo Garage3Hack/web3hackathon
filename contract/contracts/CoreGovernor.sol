@@ -26,7 +26,7 @@ contract CoreGovernor is Governor, GovernorSettings, GovernorCompatibilityBravo,
 
     constructor(IVotes _token, TimelockController _timelock)
         Governor("CoreGovernor")
-        GovernorSettings(1 /* 1 block */, 7200 /* 1 day */, 0)
+        GovernorSettings(1 /* 1 block */, 300 /* 1h */, 0)
         GovernorVotes(_token)
         GovernorVotesQuorumFraction(4)
         GovernorTimelockControl(_timelock)

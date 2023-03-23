@@ -25,13 +25,13 @@ const config: HardhatUserConfig = {
       allowUnlimitedContractSize: true,
       gas: 500000,
     }, 
-    //shibuya: {
-    //  // url:"https://evm.shibuya.astar.network",
-    //  url:"https://shibuya.public.blastapi.io",
-    //  chainId:81,
-    //  accounts: [process.env.PRIVATE_KEY],
-    //  allowUnlimitedContractSize: true
-    //}
+    shibuya: {
+     // url:"https://evm.shibuya.astar.network",
+     url:"https://shibuya.public.blastapi.io",
+     chainId:81,
+     accounts: [process.env.PRIVATE_KEY],
+     allowUnlimitedContractSize: true
+    }
   },
 };
 
