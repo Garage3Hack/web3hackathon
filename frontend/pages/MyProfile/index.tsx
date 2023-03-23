@@ -1,7 +1,7 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import Image from 'next/image';
-import { useBadgeNft, useBadgeNftBalanceOf, useMemberNft, useMemberNftBalanceOf, useMemberNftSafeMint, useMemberNftTokenOfOwnerByIndex, useMemberNftTokenUri, useMemberRegistryAddMember, usePrepareMemberNftSafeMint, usePrepareMemberRegistryAddMember } from '@/contracts/generated'
+import { useAdministerNftDelegate, useBadgeNft, useBadgeNftBalanceOf, useMemberNft, useMemberNftBalanceOf, useMemberNftSafeMint, useMemberNftTokenOfOwnerByIndex, useMemberNftTokenUri, useMemberRegistryAddMember, usePrepareAdministerNftDelegate, usePrepareMemberNftSafeMint, usePrepareMemberRegistryAddMember } from '@/contracts/generated'
 import { useAccount, useProvider, useWaitForTransaction } from 'wagmi'
 import { useEffect, useState } from 'react'
 import useDebounce from '@/common/useDebounce'
@@ -17,6 +17,14 @@ const MyProfile: NextPage = () => {
     })
     const { data, write } = useMemberNftSafeMint(config)
 
+
+    // delegate for vote
+    const adminNftDeleteConfig = usePrepareAdministerNftDelegate({
+        address: process.env.NEXT_PUBLIC_ADMINISTERNFT_ADDR as `0x${string}`,
+        args: [account.address!]
+    })
+
+    const adminNftDeleteTx = useAdministerNftDelegate(adminNftDeleteConfig.config)
 
     // get a member nft
     const memberNftContract = useMemberNft({
@@ -94,6 +102,8 @@ const MyProfile: NextPage = () => {
         console.log("be a member", write)
         write?.()
         addMember.write?.()
+        adminNftDeleteTx.write?.()
+        setLoading(true)
     }
 
     const [username, setUsername] = useState('')
@@ -123,12 +133,17 @@ const MyProfile: NextPage = () => {
         onSuccess: (data) => {
             setAlert(true)
             setMessage('Welcome BE CREATION!!')
+            setLoading(false)
         }
       })
 
     // Alert
     const [message, setMessage] = useState('')
     const [alert, setAlert] = useState(false)
+
+    // loading
+    const [loading, setLoading] = useState(false)
+
     return (
         <div>
             <div className="row mb-0" style={{ padding: "1.5rem" }}>
@@ -141,6 +156,16 @@ const MyProfile: NextPage = () => {
                 }
                 <div>
                     <h2>My Profile</h2>
+                    {
+                        loading ?
+                            <div>
+                                <div className="spinner-border text-primary" role="status">
+                                  <span className="visually-hidden">Loading...</span>
+                                </div>
+                                <span className='m-3 fs-3 text-primary'>Transaction processing....</span>
+                            </div>
+                        : null
+                    }
                 </div>
                 <div className="col">
                     {
