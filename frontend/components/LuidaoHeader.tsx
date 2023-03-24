@@ -11,7 +11,8 @@ const LuidaoHeader = () => {
         <div className="row">
             <nav className="navbar navbar-expand-lg bg-light">
                 <div className="container-fluid">
-                    <a className="navbar-brand" href="/">LuiDAO</a>
+                    {/* <a className="navbar-brand" href="/">LuiDAO</a> */}
+                    <Image alt="luidao" src="/images/luidao.png" width="121" height="40" className="" />
                     <button className="navbar-toggler" type="button" data-bs-toggle="collapse"
                         data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false"
                         aria-label="Toggle navigation">
