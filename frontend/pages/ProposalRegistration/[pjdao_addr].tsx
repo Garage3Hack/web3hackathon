@@ -1,25 +1,30 @@
 import useDebounce from "@/common/useDebounce";
 import {
   usePjDaoGetAllMembers,
-  useCoreGovernorPropose,
-  usePrepareCoreGovernorPropose,
   usePrepareCoreGovernorProposeWithDaoInfo,
   useCoreGovernorProposeWithDaoInfo,
+  useMemberRegistryGetAllMembers,
+  useMemberRegistry,
   useAdministerNft,
-  coreGovernorABI,
+  usePjDao,
+  usePjDaoName,
+  pjDaoABI,
 } from "@/contracts/generated";
+import { role2str } from "@/utils/util";
 import { BigNumber, Signer } from "ethers";
 import type { NextPage } from "next";
 import Head from "next/head";
-import { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { useWaitForTransaction, useProvider, useSigner, useContract } from "wagmi";
-import { ethers } from "ethers";
+import { useWaitForTransaction, useProvider, useContract, useSigner } from "wagmi";
+//import { ethers } from "ethers";
 
 const ProposalRegistration: NextPage = () => {
   const router = useRouter();
   const provider = useProvider();
-  const { data: signer, isError, isLoading } = useSigner()
+  //const { data: signer, isError, isLoading } = useSigner()
 
   const { pjdao_addr } = router.query;
 
@@ -30,23 +35,55 @@ const ProposalRegistration: NextPage = () => {
     signerOrProvider: provider,
   });
 
-    // member 一覧
-    const pjDaoMembers = usePjDaoGetAllMembers({
-        address: pjdao_addr as `0x${string}`
-    })
+  // member 一覧
+  const pjDaoMembers = usePjDaoGetAllMembers({
+    address: pjdao_addr as `0x${string}`
+  })
 
-    const daoMemberAddrs = pjDaoMembers.data
+  // Dao名前取得
+  const pjDaoName = usePjDaoName({
+    address: pjdao_addr as `0x${string}`
+  })
 
-  // const calldata =
-  //   administerNftContract == undefined
-  //     ? ""
-  //     : administerNftContract.interface.encodeFunctionData("safeMint", [
-  //         "0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199",
-  //         "https://ipfs.io/ipfs/QmTbA5N1j1f22NZBHTAuZXWpYTuD3z7fcQ7ed35T3FiCQ9",
-  //       ]);
+  // member詳細取得
+  const pjDaoContract = usePjDao({
+    address: pjdao_addr as `0x${string}`,
+    signerOrProvider: provider
+  })
 
-    console.log(daoMemberAddrs);
+  const daoMemberAddrs = pjDaoMembers.data
+  const daoName = pjDaoName.data;
 
+  const memberRegistryContract = useMemberRegistry({
+    address: process.env.NEXT_PUBLIC_MEMBERREGISTRY_ADDR as `0x${string}` | undefined,
+    signerOrProvider: provider
+  })
+
+  // メンバアドレスからMember情報を取得
+  const [members, setMembers] = useState<any[]>([])
+  useEffect( () => {
+      const fetchMembers = async () => {
+          if (memberRegistryContract && pjDaoContract && daoMemberAddrs){
+              const mems = [] as any
+              for (let index = 0; index < daoMemberAddrs?.length!; index++) {
+                  const memberAddr = daoMemberAddrs![index];
+                  const mem = await memberRegistryContract.getMember(memberAddr)
+                  const mem2 =  await pjDaoContract.members(memberAddr)
+                  mems.push({
+                    addr: memberAddr,
+                    name: mem![0],
+                    introduction: mem![1],
+                    skills: mem![2],
+                    role: mem2.role
+                  })
+              }
+              setMembers(mems)
+          }
+      }
+      fetchMembers()
+    }, [daoMemberAddrs, memberRegistryContract])
+
+    // proposalが承認された際に指定したアドレスに送付するトランザクションを作成
     const calldata =
     administerNftContract == undefined
       ? ""
@@ -120,7 +157,7 @@ const ProposalRegistration: NextPage = () => {
 
   useWaitForTransaction({
     hash: data?.hash,
-    onSuccess: async (data) => {
+    onSuccess: (data) => {
 
       console.log("ProposalRegistration useWaitForTransaction " , data);
 
@@ -146,8 +183,10 @@ const ProposalRegistration: NextPage = () => {
           <h2>Proposal Registration</h2>
           <p>Register Proposal on this page.</p>
         </div>
-        <div className="row row-cols-1 row-cols-md-3 g-4">
-          <div className="col">
+        <div className="row mb-3" style={{ padding: "1.5rem" }}>
+          <div className="card text-dark">
+          <div className="card-header">{daoName}</div>
+            <div className="card-body">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -170,6 +209,36 @@ const ProposalRegistration: NextPage = () => {
                 Regist
               </button>
             </form>
+            </div>
+          </div>
+        </div>
+        <div className="row mb-3" style={{ padding: "1.5rem" }}>
+          <div className="card mb-4">
+            <div className="card-header">Members</div>
+            <div className="card-body">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Role</th>
+                    <th scope="col">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {members.map((member, index) => (
+                  <tr key={`mem-${index}`}>
+                    <th scope="row">{index}</th>
+                    <td>{member.name}</td>
+                    <td>{role2str(member.role)}</td>
+                    <td>
+                      <button type="button" className="btn btn-light"><Link href={`/Members/${member.addr}`}><Image alt="refer" src="/icons/eye.svg" width="16" height="16"/></Link></button>
+                    </td>
+                  </tr>
+                  ))}
+                  </tbody>
+                </table>
+            </div>
           </div>
         </div>
       </div>

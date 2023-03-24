@@ -99,7 +99,7 @@ const Management: NextPage = () => {
               <thead>
                 <tr>
                   <th scope="col">#</th>
-                  <th>pid</th>
+                  <th className="d-none">pid</th>
                   <th>description</th>
                   <th>status</th>
                   <th>Action</th>
@@ -109,7 +109,7 @@ const Management: NextPage = () => {
                 {proposalIds!.map((proposalId: any, index) => (
                   <tr key={`proposal-${index}`}>
                     <td>{index}</td>
-                    <td>{proposalId}</td>
+                    <td className="d-none">{proposalId}</td>
                     <td>{descriptions[index]}</td>
                     <td>{state2str(states[index])}</td>
                     <td>
