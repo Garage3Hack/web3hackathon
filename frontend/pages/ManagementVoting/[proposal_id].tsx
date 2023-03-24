@@ -12,6 +12,10 @@ import {
   useCoreGovernorCastVote,
   usePrepareCoreGovernorCastVote,
   useCoreGovernorGetProposalInfoHistory,
+  usePrepareCoreGovernorQueue,
+  usePrepareCoreGovernorExecute,
+  useCoreGovernorQueue,
+  useCoreGovernorExecute
 } from "@/contracts/generated";
 import type { NextPage } from "next";
 import Head from "next/head";
@@ -55,8 +59,20 @@ const ManagementVoting: NextPage = () => {
     args: [ BigNumber.from(proposal_id), Number(0) ]
   })
 
+  const queueConfig = usePrepareCoreGovernorQueue({
+    address: process.env.NEXT_PUBLIC_COREGOVERNOR_ADDR as `0x${string}`,
+    args: [ BigNumber.from(proposal_id)]
+})
+
+const executeConfig = usePrepareCoreGovernorExecute({
+  address: process.env.NEXT_PUBLIC_COREGOVERNOR_ADDR as `0x${string}`,
+  args: [ BigNumber.from(proposal_id)]
+})
+
   const voteFor = useCoreGovernorCastVote(voteForConfig.config)
   const voteAgainst = useCoreGovernorCastVote(voteAgainstConfig.config)
+  const queueAction = useCoreGovernorQueue(queueConfig.config)
+  const executeAction = useCoreGovernorExecute(executeConfig.config)
 
   // console.log(proposal);
 
@@ -113,7 +129,14 @@ const ManagementVoting: NextPage = () => {
           <ul className="list-group list-group-flush">
             <li className="list-group-item">
             <h5 className="card-title">Voting Results</h5>
-            <div>賛成: <strong>{voteForCount}</strong>  反対: <strong>{voteAgainstCount}</strong><button type="button" className="btn btn-light ml-auto">Execute</button></div>
+            <div>賛成: <strong>{voteForCount}</strong>  反対: <strong>{voteAgainstCount}</strong></div>
+            </li>
+          </ul>
+          <ul className="list-group list-group-flush">
+            <li className="list-group-item">
+            <h5 className="card-title">Proposal Management</h5>
+            <div><button type="button" className="btn btn-light ml-auto" onClick={() => queueAction.write?.()}>Queue</button></div>
+            <div><button type="button" className="btn btn-light ml-auto" onClick={() => executeAction.write?.()}>Execute</button></div>
             </li>
           </ul>
           <div className="card-footer">
