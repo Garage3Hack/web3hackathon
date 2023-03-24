@@ -4,7 +4,7 @@ import type { NextPage } from 'next'
 import Head from 'next/head'
 import { useRouter } from 'next/router';
 import { useState } from 'react';
-import { useAccount } from 'wagmi';
+import { useAccount, useWaitForTransaction } from 'wagmi';
 
 const IssueRegistration: NextPage = () => {
     const router = useRouter();
@@ -25,6 +25,18 @@ const IssueRegistration: NextPage = () => {
     })
 
     const {data, write} = usePjDaoAddIssue(config)
+
+    const _ = useWaitForTransaction({
+        hash: data?.hash,
+        onSuccess: (data) => {
+            setLoading(false)
+            router.back()
+        }
+      })
+
+    // loading
+    const [loading, setLoading] = useState(false)
+
     return (
         <div>
             <Head><title>LuiDAO Registration</title></Head>
@@ -35,11 +47,22 @@ const IssueRegistration: NextPage = () => {
                         Register Issue on this page.
                     </p>
                 </div>
+                {
+                    loading ?
+                        <div>
+                            <div className="spinner-border text-primary" role="status">
+                              <span className="visually-hidden">Loading...</span>
+                            </div>
+                            <span className='m-3 fs-3 text-primary'>Transaction processing....</span>
+                        </div>
+                    : null
+                }
                 <div className="row row-cols-1 row-cols-md-3 g-4">
                     <div className="col">
                         <form onSubmit={(e) => {
                             e.preventDefault()
                             console.log("create pj dao", write)
+                            setLoading(true)
                             write?.()
                         }}>
                             <div className="mb-3">

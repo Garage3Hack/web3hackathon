@@ -65,22 +65,24 @@ const Management: NextPage = () => {
       const des = [];
       const stat = [];
 
-      for (let i = 0; i < data!.length; i++) {
-        const state = await CoreGovernorContract?.state(
-          BigNumber.from(data![i]["proposalId"])
-        );
+      if (data) {
+        for (let i = 0; i < data!.length; i++) {
+          const state = await CoreGovernorContract?.state(
+            BigNumber.from(data![i]["proposalId"])
+          );
 
-        console.log(JSON.stringify(data![i]["proposalId"]["_hex"]));
+          console.log(JSON.stringify(data![i]["proposalId"]["_hex"]));
 
-        // console.log(data![i][0]));
-        // pid.push(data![i][0]);
-        pid.push(BigNumber.from(data![i]["proposalId"]).toHexString());
-        des.push(data![i]["proposalDescription"]);
-        stat.push(state);
+          // console.log(data![i][0]));
+          // pid.push(data![i][0]);
+          pid.push(BigNumber.from(data![i]["proposalId"]).toHexString());
+          des.push(data![i]["proposalDescription"]);
+          stat.push(state);
+        }
+        setProposalIds(pid);
+        setDescriptions(des);
+        setStates(stat);
       }
-      setProposalIds(pid);
-      setDescriptions(des);
-      setStates(stat);
     };
     fetchState();
     console.log("3");

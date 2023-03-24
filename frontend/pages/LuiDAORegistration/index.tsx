@@ -19,12 +19,16 @@ const LuiDAORegistration: NextPage = () => {
     })
     const { data, isLoading, isSuccess, write } = usePjDaoFactoryCreatePjDao(config)
 
-    useWaitForTransaction({
+    const _ = useWaitForTransaction({
         hash: data?.hash,
         onSuccess: (data) => {
             router.push('/')
+            setLoading(false)
         }
       })
+
+    // loading
+    const [loading, setLoading] = useState(false)
 
     return (
         <div>
@@ -36,10 +40,21 @@ const LuiDAORegistration: NextPage = () => {
                         Register LuiDAO on this page.
                     </p>
                 </div>
+                {
+                    loading ?
+                        <div>
+                            <div className="spinner-border text-primary" role="status">
+                              <span className="visually-hidden">Loading...</span>
+                            </div>
+                            <span className='m-3 fs-3 text-primary'>Transaction processing....</span>
+                        </div>
+                    : null
+                }
                 <div className="row row-cols-1 row-cols-md-3 g-4">
                     <div className="col">
                         <form onSubmit={(e) => {
                             e.preventDefault()
+                            setLoading(true)
                             console.log("create pj dao", write)
                             write?.()
                         }}>

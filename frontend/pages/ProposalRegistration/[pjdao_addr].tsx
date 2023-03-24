@@ -160,6 +160,7 @@ const ProposalRegistration: NextPage = () => {
     onSuccess: (data) => {
 
       console.log("ProposalRegistration useWaitForTransaction " , data);
+      setLoading(false)
 
       // const descriptionHash = generateHash(proposalDescription);
       // const proposalIdJson = await CoreGovernorContract!.hashProposal(
@@ -173,6 +174,9 @@ const ProposalRegistration: NextPage = () => {
     }
   });
 
+  // loading
+  const [loading, setLoading] = useState(false)
+
   return (
     <div>
       <Head>
@@ -183,6 +187,16 @@ const ProposalRegistration: NextPage = () => {
           <h2>Proposal Registration</h2>
           <p>Register Proposal on this page.</p>
         </div>
+        {
+            loading ?
+                <div>
+                    <div className="spinner-border text-primary" role="status">
+                      <span className="visually-hidden">Loading...</span>
+                    </div>
+                    <span className='m-3 fs-3 text-primary'>Transaction processing....</span>
+                </div>
+            : null
+        }
         <div className="row mb-3" style={{ padding: "1.5rem" }}>
           <div className="card text-dark">
           <div className="card-header">{daoName}</div>
@@ -191,6 +205,7 @@ const ProposalRegistration: NextPage = () => {
               onSubmit={(e) => {
                 e.preventDefault();
                 console.log("create proposal", write);
+                setLoading(true)
                 write?.();
               }}
             >
