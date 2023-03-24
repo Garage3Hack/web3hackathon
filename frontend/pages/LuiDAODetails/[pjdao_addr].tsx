@@ -1,4 +1,5 @@
 import useDebounce from '@/common/useDebounce'
+import { role2str } from "@/utils/util";
 import { useMemberRegistry, usePjDao, usePjDaoAddMember, usePjDaoGetAllMembers, usePjDaoGetIssueList, usePjDaoGetRecentMvpAddress, usePjDaoMintMvpNft, usePjDaoMintNft, usePreparePjDaoAddMember, usePreparePjDaoMintMvpNft, usePreparePjDaoMintNft, useCoreGovernorGetProposalIdsAndDescriptions } from '@/contracts/generated'
 import type { NextPage } from 'next'
 import Head from 'next/head'
@@ -14,28 +15,6 @@ const LuiDAODetails: NextPage = () => {
     const router = useRouter();
     const provider = useProvider()
     const { pjdao_addr } = router.query;
-
-    const role2str = (rolenum: number) => {
-        if (rolenum == 1) {
-            return 'PRODUCTMANAGER'
-        }
-        if (rolenum == 2) {
-            return 'PROJECTMANAGER'
-        }
-        if (rolenum == 3) {
-            return 'DEVELOPER'
-        }
-        if (rolenum == 4) {
-            return 'DESIGNER'
-        }
-        if (rolenum == 5) {
-            return 'MARKETER'
-        }
-        if (rolenum == 6) {
-            return 'QAENGINEER'
-        }
-        return 'NONE'
-    }
 
     // common use
     const memberRegistryContract = useMemberRegistry({
@@ -160,7 +139,7 @@ const LuiDAODetails: NextPage = () => {
                         This page is for managing issues, members, and deliverables in LuiDAO.
                     </p>
                 </div>
-                <div className=" row"style={{ padding: "1.5rem" }}>
+                <div className="row" style={{ padding: "1.5rem" }}>
                     <div className="card text-dark">
                         <div className="card-header">Current MVP</div>
                         <div className="card-body">
