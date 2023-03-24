@@ -1,7 +1,7 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import Image from 'next/image';
-import { useAdministerNftDelegate, useBadgeNft, useBadgeNftBalanceOf, useMemberNft, useMemberNftBalanceOf, useMemberNftSafeMint, useMemberNftTokenOfOwnerByIndex, useMemberNftTokenUri, useMemberRegistryAddMember, usePrepareAdministerNftDelegate, usePrepareMemberNftSafeMint, usePrepareMemberRegistryAddMember } from '@/contracts/generated'
+import { useAdministerNftDelegate, useBadgeNft, useBadgeNftBalanceOf, useMemberNft, useMemberNftBalanceOf, useMemberNftSafeMint, useMemberNftTokenOfOwnerByIndex, useMemberNftTokenUri, useMemberRegistryAddMember, usePrepareAdministerNftDelegate, usePrepareMemberNftSafeMint, usePrepareMemberRegistryAddMember, useAdministerNft, useAdministerNftBalanceOf } from '@/contracts/generated'
 import { useAccount, useProvider, useWaitForTransaction } from 'wagmi'
 import { useEffect, useState } from 'react'
 import useDebounce from '@/common/useDebounce'
@@ -95,6 +95,47 @@ const MyProfile: NextPage = () => {
         }
         fetchBadgeNftMeta()
     }, [account.address, badgeNftContract, balanceOfBadgeResult.data])
+
+    
+    // get administer nfts
+    const [administerNfts, setAdministerNfts] = useState<any[]>([])
+    const administerNftContract = useAdministerNft({
+        address: process.env.NEXT_PUBLIC_ADMINISTERNFT_ADDR as `0x${string}`,
+        signerOrProvider: provider
+    })
+    const balanceOfAdministerResult = useAdministerNftBalanceOf({
+        address: process.env.NEXT_PUBLIC_ADMINISTERNFT_ADDR as `0x${string}`,
+        args: [myAddr as `0x${string}`]
+    })
+
+    useEffect( () => {
+        const fetchAdministerNftMeta = async () => {
+            if (balanceOfAdministerResult.data && account.address && administerNftContract){
+                console.log('administer balance data', balanceOfAdministerResult.data)
+                console.log('administer balance', balanceOfAdministerResult.data?.toNumber())
+                const balanceOfAdminister = balanceOfAdministerResult.data?.toNumber()
+                const _administers = []
+                for (let i=0; i< balanceOfAdminister; i++) {
+                    console.log('administer', i)
+                    let administerNftTokenId 
+                    try {
+                        administerNftTokenId = await administerNftContract?.tokenOfOwnerByIndex(account.address!, BigNumber.from(i))
+                    } catch (error) {
+                        console.log(error)
+                        break
+                    }
+                    console.log('administer tokenid', administerNftTokenId)
+                    const tokenURI = await administerNftContract.tokenURI(administerNftTokenId)
+                    console.log('administer tokenURI', tokenURI)
+                    const resp = await fetch(tokenURI)
+                    const json = await resp.json()
+                    _administers.push(json)
+                }
+                setAdministerNfts(_administers)
+            }
+        }
+        fetchAdministerNftMeta()
+    }, [account.address, administerNftContract, balanceOfAdministerResult.data])
 
     // Registration
     const beAMember = (e: React.FormEvent<HTMLFormElement>) => {
@@ -235,6 +276,33 @@ const MyProfile: NextPage = () => {
                                           </li>
                                           <li className="d-flex align-items-center me-3">
                                             <small>{badge.description}</small>
+                                          </li>
+                                        </ul>
+                                      </div>
+                                    </div>
+                                </div>
+                        ))}
+                    </ul>
+                </div>
+            </div>
+            <div className="row mb-3" style={{ padding: "1.5rem" }}>
+                <div className="col">
+                    <h2>Your Administer NFTs</h2>
+                    <ul className="row row-cols-3  g-4 py-5">
+                        {administerNfts?.map((administerNft, index)=> (
+                                <div key={`administerNft-${index}`} className="col">
+                                    <div className="card card-cover h-100 overflow-hidden text-bg-dark rounded-4 shadow-lg" style={{backgroundImage: `url('${administerNft.image}')`, backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundPosition: 'center'}}>
+                                      <div className="d-flex flex-column h-100 p-5 pb-3 text-white text-shadow-1">
+                                        <h3 className="pt-5 mt-5 mb-4 display-6 lh-1 fw-bold">{administerNft.name}</h3>
+                                        <ul className="d-flex list-unstyled mt-auto">
+                                          <li className="me-auto">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" className="bi bi-award" viewBox="0 0 16 16">
+                                              <path d="M9.669.864 8 0 6.331.864l-1.858.282-.842 1.68-1.337 1.32L2.6 6l-.306 1.854 1.337 1.32.842 1.68 1.858.282L8 12l1.669-.864 1.858-.282.842-1.68 1.337-1.32L13.4 6l.306-1.854-1.337-1.32-.842-1.68L9.669.864zm1.196 1.193.684 1.365 1.086 1.072L12.387 6l.248 1.506-1.086 1.072-.684 1.365-1.51.229L8 10.874l-1.355-.702-1.51-.229-.684-1.365-1.086-1.072L3.614 6l-.25-1.506 1.087-1.072.684-1.365 1.51-.229L8 1.126l1.356.702 1.509.229z"/>
+                                              <path d="M4 11.794V16l4-1 4 1v-4.206l-2.018.306L8 13.126 6.018 12.1 4 11.794z"/>
+                                            </svg>
+                                          </li>
+                                          <li className="d-flex align-items-center me-3">
+                                            <small>{administerNft.description}</small>
                                           </li>
                                         </ul>
                                       </div>
